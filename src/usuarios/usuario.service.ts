@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,7 +15,7 @@ const entrenadorrole: string = "Entrenador";
 @Injectable()
 export class UsuarioService {
   constructor( 
-    @InjectModel(Usuario.name) private readonly usuarioModel: Model<UsuarioDocument>, private readonly pouleService: PoulesService
+    @InjectModel(Usuario.name) private readonly usuarioModel: Model<UsuarioDocument>,  @Inject(forwardRef(() => PoulesService)) private readonly pouleService: PoulesService
   ) {
   }
 
@@ -26,6 +26,13 @@ export class UsuarioService {
 
   async checkIfAdmin(correo:string, contraseña:string){
     return (await this.findNivel(correo, contraseña) == adminrole)
+  }
+
+  async checklogin(correo:string, clave:string) {
+    if (await this.checkIfAuth(correo, clave)){
+      let usuario = await this.findByMail(correo);
+      return usuario["Activado"];
+    }
   }
 
   async findNivel(correo:string, clave:string) {
@@ -42,23 +49,26 @@ export class UsuarioService {
   }
 
   async findAll(request: Request): Promise<Usuario[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador"]).exec();
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
+  }
+  async findAllbtn(request: Request): Promise<Usuario[]> { 
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).lean().exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador"]).exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador"]).exec(); 
+    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec(); 
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador"]).exec(); 
+    return this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec(); 
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador"]).exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
@@ -68,7 +78,7 @@ export class UsuarioService {
   }
 
   async remove(id: string) { 
-    return this.usuarioModel.findByIdAndRemove({ _id: id }).exec(); 
+    return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
   }
 
   async updatebyMail(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
@@ -78,19 +88,16 @@ export class UsuarioService {
   }
 
   async removebyMail(id: string) { 
-    return this.usuarioModel.findOneAndRemove({ Correo: id }).exec(); 
+    return this.usuarioModel.findOneAndRemove({ Correo: id }).lean().exec(); 
   }
 
   async activarUsuario(id: string): Promise<Usuario> { 
     return this.usuarioModel.findOneAndUpdate({ _id: id },{"Activado" : true});
   }
   async removePoule(id: string, idp: string): Promise<Usuario> { 
-    return this.usuarioModel.findOneAndUpdate({_id: id},  {$pull: {"Poules": {_id: idp}}});
+    return this.usuarioModel.findByIdAndUpdate({_id: id},  {$pull: {"Poules": {_id: idp}}},{new:true});
   }
   async addPoule(id: string, idp: string): Promise<Usuario> { 
-      let usuario = await this.findById(id);
-      let poule = await this.pouleService.findOne(idp);
-      usuario.Poules.push(poule);
-      return usuario;
+      return this.usuarioModel.findOneAndUpdate({_id: id},  {$push: {"Poules": {_id: idp}}},{new:true});
   }
 }

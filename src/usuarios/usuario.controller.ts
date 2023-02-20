@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseFilters } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { PoulesService } from 'src/poules/poules.service';
+import { MongoExceptionFilter } from 'src/mongo-exception.filter';
 
 var mailer = require("nodemailer");
 
@@ -24,90 +24,131 @@ let transporter = mailer.createTransport({
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
+  @Get("login/:correo/:clave")
+  @UseFilters(MongoExceptionFilter)
+  async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
+      let usuario = await this.usuarioService.findNivel(correo, clave);
+      if (usuario){
+        let usuario = await this.usuarioService.findByMail(correo);
+        return "ACEPTADO/" + usuario["_id"];
+      }
+      else{
+        return "NO ACTIVADO"
+      }
+    }
+
   @Get("nivel/:correo/:clave")
+  @UseFilters(MongoExceptionFilter)
   async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string ) {
     return this.usuarioService.findNivel(correo, contraseña);
   }
 
   @Get("activar/:id")
+  @UseFilters(MongoExceptionFilter)
   async activarbyId(@Param('id') id: string) {
     await this.usuarioService.activarUsuario(id);
     return "Inicio de sesión autorizado. Ya puedes usar la aplicación";
   }
 
   @Post()
+  @UseFilters(MongoExceptionFilter)
   async create(@Body() createUsuarioDto: CreateUsuarioDto) {
-    let usuario = await this.usuarioService.create(createUsuarioDto);
-    console.log(usuario);
-    var mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para activar tu cuenta, debes entrar en este enlace\n"+
-    "http://localhost:3000/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
-    " mandando un correo a nbaronariera@gmail.com";
-    var mailoptions = {
-      from: '"Usuario registrado correctamente" <noreply@esgrimapp.com>',
-      to: "nbaronariera@gmail.com",
-      subject: 'Activa tu cuenta',
-      text: mensaje,
-    };  
+      let usuario = await this.usuarioService.create(createUsuarioDto);
+      var mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para activar tu cuenta, debes entrar en este enlace\n"+
+      "http://localhost:3000/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
+      " mandando un correo a nbaronariera@gmail.com";
+      var mailoptions = {
+        from: '"Usuario registrado correctamente" <noreply@esgrimapp.com>',
+        to: usuario["Correo"],
+        subject: 'Activa tu cuenta',
+        text: mensaje,
+      };  
 
-    let info = await transporter.sendMail(mailoptions);
-    if (info != null){
-      return 0;
-    }
+      let info = await transporter.sendMail(mailoptions);
+      if (info != null){
+        return "ACEPTADO/" + usuario["_id"];
+      }
+
+      await this.usuarioService.remove(usuario["_id"]);
+      
+      return "ERRORCORREO";
     
   }
 
   @Get("all/:correo/:clave")
+  @UseFilters(MongoExceptionFilter)
   async findAll(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      return this.usuarioService.findAll(request)
+      return this.usuarioService.findAll(request);
     }
     else{
-      return "No hay permisos suficientes";
+      return "No estás autorizado";
+    }
+  }
+
+  @Get("all/botones/:correo/:clave")
+  async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string) {
+    if (await this.usuarioService.checkIfAuth(correo, clave)){
+        return this.usuarioService.findAllbtn(request);
+    }
+    else{
+      return "No estás autorizado";
     }
   }
 
   @Get('id/:id')
+  @UseFilters(MongoExceptionFilter)
   findOnebyID(@Param('id') id: string) {
     return this.usuarioService.findById(id);
   }
 
-  @Get("nombre/:nombre")
-  findAllWithName(@Param("nombre") name:string) {
+  @Get("nombre/:correo/:clave/:nombre")
+  @UseFilters(MongoExceptionFilter)
+  async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string) {
+    if (await this.usuarioService.checkIfAuth(correo, clave)){
     return this.usuarioService.findByName(name);
+  }
   }
 
   @Get("correo/:correo")
+  @UseFilters(MongoExceptionFilter)
   findOneByMail(@Param("correo") id:string) {
     return this.usuarioService.findByMail(id);
   }
 
   @Get("sala/:sala")
+  @UseFilters(MongoExceptionFilter)
   findOneBySala(@Param("sala") id:string) {
     return this.usuarioService.findBySala(id);
   }
 
   //gets pero de 1 dato
   @Get('id/:id/:filtro')
+  @UseFilters(MongoExceptionFilter)
   findOnebyIDandFilter(@Param('id') id: string, @Param("filtro") filtro : string) {
     return this.usuarioService.findById(id)[filtro];
   }
   @Get("nombre/:nombre/:filtro")
+  @UseFilters(MongoExceptionFilter)
   findAllWithNameandFilter(@Param("nombre") name:string, @Param("filtro") filtro : string) {
     return this.usuarioService.findByName(name)[filtro];
   }
 
   @Get("correo/:correo/:filtro")
+  @UseFilters(MongoExceptionFilter)
   findOneByMailandFilter(@Param("correo") id:string, @Param("filtro") filtro : string) {
     return this.usuarioService.findByMail(id)[filtro];
   }
 
   @Get("sala/:sala/:filtro")
+  @UseFilters(MongoExceptionFilter)
   findOneBySalaandFilter(@Param("sala") id:string, @Param("filtro") filtro : string) {
     return this.usuarioService.findBySala(id)[filtro];
   }
 
 
   @Patch('id/:correo/:clave/:id')
+  @UseFilters(MongoExceptionFilter)
   async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
       return this.usuarioService.update(id, updateUsuarioDto);
@@ -117,21 +158,26 @@ export class UsuarioController {
     }
   }
 
-  @Patch('poule/add/:correo/:clave/:id/:pouleid')
+  @Get('poule/add/:correo/:clave/:id/:pouleid')
+  @UseFilters(MongoExceptionFilter)
   async addPoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
         return this.usuarioService.addPoule(id, pid);
     }
+    return "Error de autentificación";
   }
 
-  @Patch('poule/remove/:correo/:clave/:id/:pouleid')
+  @Get('poule/remove/:correo/:clave/:id/:pouleid')
+  @UseFilters(MongoExceptionFilter)
   async removePoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
         return this.usuarioService.removePoule(id, pid);
     }
+    return "Error de autentificación";
   }
 
   @Delete('id/:correo/:clave/:id')
+  @UseFilters(MongoExceptionFilter)
   async remove(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
       return this.usuarioService.remove(id);
@@ -143,6 +189,7 @@ export class UsuarioController {
 
 
   @Patch('correo/:correopropio/:clave/:correo')
+  @UseFilters(MongoExceptionFilter)
   async updatebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Param('correo') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     if (await this.usuarioService.checkIfAdmin(correop, clave)){
       return this.usuarioService.updatebyMail(id, updateUsuarioDto);}
@@ -152,6 +199,7 @@ export class UsuarioController {
   }
 
   @Delete('correo/:correopropio/:clave/:correo')
+  @UseFilters(MongoExceptionFilter)
   async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Param('correo') id: string) {
     if (await this.usuarioService.checkIfAdmin(correop, clave)){
       return this.usuarioService.removebyMail(id);

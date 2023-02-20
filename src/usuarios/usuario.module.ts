@@ -7,7 +7,7 @@ import { PoulesModule } from 'src/poules/poules.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema}]),PoulesModule
+    MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema}]),forwardRef(() => PoulesModule)
   ],
   controllers: [UsuarioController],
   providers: [UsuarioService],

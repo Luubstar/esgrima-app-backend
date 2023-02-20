@@ -5,14 +5,12 @@ export class CreatePouleDto {
   })
   readonly Nombre: string; 
 
-  @ApiProperty({
-    example:
-       "Poule", default:"Poule"})
-  readonly Tipo: string;
-
   @ApiProperty({ example: '' })
   readonly Creador: string;
 
   @ApiProperty({ example: [""] })
-  readonly Tiradores: string;
+  readonly Tiradores: string[];
+
+  @ApiProperty()
+  readonly Valores: number[];
 }

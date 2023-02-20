@@ -5,22 +5,23 @@ export type PouleDocument = Poule & Document;
 
 @Schema() 
 export class Poule {  
+  
   @Prop() 
   Nombre: string;
 
-  @Prop()
+  @Prop({default:"Poule"})
   Tipo: string;
 
   @Prop()
   Estado: number;
 
-  @Prop({type: Types.ObjectId})
+  @Prop()
   Creador: string;
 
-  @Prop({type:[{type: Types.ObjectId}]})
+  @Prop([String])
   Tiradores: string[];
 
-  @Prop({type: [{type: Types.ObjectId}]})
+  @Prop([String])
   Vencedores: string[];
 
   @Prop([Number]) 

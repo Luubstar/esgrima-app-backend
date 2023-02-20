@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject,UseFilters} from '@nestjs/common';
 import { PoulesService } from './poules.service';
 import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { UsuarioService } from 'src/usuarios/usuario.service';
+import { MongoExceptionFilter } from 'src/mongo-exception.filter';
+import { changeEstadoDto } from './dto/change-estado.dto';
+import { changePouleVencedores } from './dto/change-vencedores.dto';
+import { changeValoresDto } from './dto/change-valores.dto';
 
 @Controller('poules')
 @ApiTags('poules')
@@ -14,27 +18,44 @@ export class PoulesController {
   @Inject(UsuarioService)
   private readonly usuario;
 
-  @Post()
-  create(@Body() createPouleDto: CreatePouleDto) {
-    return this.usuarioService.create(createPouleDto);
+  @Post(":correo/:clave")
+  @UseFilters(MongoExceptionFilter)
+  async create(@Body() createPouleDto: CreatePouleDto,@Param("correo") correo:string,@Param("clave") clave:string) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        let poule = await this.usuarioService.create(createPouleDto);
+        return poule["_id"];
+    }
+    return "ERROR";
   }
 
-  @Get()
-  findAll(@Req() request: Request) {
+  @Get(":correo/:clave")
+  @UseFilters(MongoExceptionFilter)
+  async findAll(@Req() request: Request,@Param("correo") correo:string,@Param("clave") clave:string) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
     return this.usuarioService.findAll(request);
+    }
   }
 
-  @Get(':id')
+  @Get('id/:id')
+  @UseFilters(MongoExceptionFilter)
   findOne(@Param('id') id: string) {
     return this.usuarioService.findOne(id);
   }
 
+  @Get('all')
+  @UseFilters(MongoExceptionFilter)
+  findall(@Req() request: Request) {
+    return this.usuarioService.findAll(request);
+  }
+
   @Get(':id/:valor')
+  @UseFilters(MongoExceptionFilter)
   findOneReturnUsuarios(@Param('id') id: string, @Param('valor') valor: string) {
     return this.usuarioService.findOneReturnFilter(id,valor);
   }
 
   @Patch(':correo/:clave/:id')
+  @UseFilters(MongoExceptionFilter)
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updatePouleDto: UpdatePouleDto) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
     return this.usuarioService.update(id, updatePouleDto);
@@ -45,6 +66,7 @@ export class PoulesController {
   }
 
   @Delete(':correo/:clave/:id')
+  @UseFilters(MongoExceptionFilter)
   async remove(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
       return this.usuarioService.remove(id);
@@ -54,5 +76,57 @@ export class PoulesController {
     }
   }
 
+  @Get(':lista/add/:correo/:clave/:pouleid/:idusuario')
+  @UseFilters(MongoExceptionFilter)
+  async addPoule(@Param('lista') lista: string,@Param('correo') correo: string,@Param('clave') clave: string,@Param('idusuario') iduser: string,@Param('pouleid') idpoule: string) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.addfromlista(idpoule, iduser,lista);
+    }
+    return "Error de autentificación";
+  }
+
+  @Get(':lista/remove/:correo/:clave/:pouleid/:idusuario')
+  @UseFilters(MongoExceptionFilter)
+  async removePoule(@Param('lista') lista: string,@Param('correo') correo: string,@Param('clave') clave: string,@Param('idusuario') iduser: string,@Param('pouleid') idpoule: string) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.removefromlista(idpoule, iduser,lista);
+    }
+    return "Error de autentificación";
+  }
   
+  @Post("estado/:correo/:clave/:pouleid")
+  @UseFilters(MongoExceptionFilter)
+  async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.setEstado(idpoule, changeEstadoDTO);
+    }
+    return "ERROR";
+  }
+
+  @Post("vencedores/:correo/:clave/:pouleid")
+  @UseFilters(MongoExceptionFilter)
+  async changePouleVencedores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changePouleVencedoresDTO: changePouleVencedores) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.setVencedores(idpoule, changePouleVencedoresDTO);
+    }
+    return "ERROR";
+  }
+
+  @Post("valores/:correo/:clave/:pouleid")
+  @UseFilters(MongoExceptionFilter)
+  async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changePouleVencedoresDTO: changeValoresDto) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.setValores(idpoule, changePouleVencedoresDTO);
+    }
+    return "ERROR";
+  }
+
+  @Get("valores/:correo/:clave/:pouleid")
+  @UseFilters(MongoExceptionFilter)
+  async getPoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string) {
+    if (await this.usuario.checkIfAuth(correo, clave)){
+        return this.usuarioService.getValores(idpoule);
+    }
+    return "ERROR";
+  }
 }
