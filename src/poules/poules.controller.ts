@@ -9,6 +9,7 @@ import { MongoExceptionFilter } from 'src/mongo-exception.filter';
 import { changeEstadoDto } from './dto/change-estado.dto';
 import { changePouleVencedores } from './dto/change-vencedores.dto';
 import { changeValoresDto } from './dto/change-valores.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('poules')
 @ApiTags('poules')
@@ -19,6 +20,7 @@ export class PoulesController {
   private readonly usuario;
 
   @Post(":correo/:clave")
+  @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
   async create(@Body() createPouleDto: CreatePouleDto,@Param("correo") correo:string,@Param("clave") clave:string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
@@ -28,7 +30,7 @@ export class PoulesController {
     return "ERROR";
   }
 
-  @Get(":correo/:clave")
+  @Get("all/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async findAll(@Req() request: Request,@Param("correo") correo:string,@Param("clave") clave:string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
@@ -42,13 +44,8 @@ export class PoulesController {
     return this.usuarioService.findOne(id);
   }
 
-  @Get('all')
-  @UseFilters(MongoExceptionFilter)
-  findall(@Req() request: Request) {
-    return this.usuarioService.findAll(request);
-  }
 
-  @Get(':id/:valor')
+  @Get('id/:id/:valor')
   @UseFilters(MongoExceptionFilter)
   findOneReturnUsuarios(@Param('id') id: string, @Param('valor') valor: string) {
     return this.usuarioService.findOneReturnFilter(id,valor);
@@ -114,9 +111,9 @@ export class PoulesController {
 
   @Post("valores/:correo/:clave/:pouleid")
   @UseFilters(MongoExceptionFilter)
-  async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changePouleVencedoresDTO: changeValoresDto) {
+  async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeValoresDTO: changeValoresDto) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.setValores(idpoule, changePouleVencedoresDTO);
+        return this.usuarioService.setValores(idpoule, changeValoresDTO);
     }
     return "ERROR";
   }
@@ -125,7 +122,8 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async getPoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.getValores(idpoule);
+        let poule =  await this.usuarioService.getValores(idpoule);
+        return poule["Valores"];
     }
     return "ERROR";
   }

@@ -61,8 +61,6 @@ export class PoulesService {
     return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
   }
   async getValores(idpoule: string): Promise<Poule> { 
-    return this.usuarioModel.findById({_id: idpoule})["Valores"];
+    return this.usuarioModel.findOne({ _id: idpoule }).setOptions({sanitizeFilter : true}).lean().exec();
   }
-
-
 }

@@ -20,8 +20,10 @@ export class UsuarioService {
   }
 
   async checkIfAuth(correo : string, clave : string){
+    try{
     let usuario = await this.findByMail(correo);
-    return usuario["Clave"] == clave && usuario["Activado"];
+    return usuario["Clave"] == clave && usuario["Activado"];}
+    catch{return false;}
   }
 
   async checkIfAdmin(correo:string, contraseña:string){
@@ -29,6 +31,13 @@ export class UsuarioService {
   }
 
   async checklogin(correo:string, clave:string) {
+    if (await this.checkIfAuth(correo, clave)){
+      let usuario = await this.findByMail(correo);
+      return usuario["Activado"];
+    }
+  }
+
+  async findActivado(correo:string, clave:string) {
     if (await this.checkIfAuth(correo, clave)){
       let usuario = await this.findByMail(correo);
       return usuario["Activado"];
@@ -43,32 +52,30 @@ export class UsuarioService {
   }
 
   async create(createBookDto: CreateUsuarioDto): Promise<Usuario> { 
-    //createBookDto["Nivel"] = "Tirador";
-    //createBookDto["Sala"] = "";
     return this.usuarioModel.create(createBookDto); 
   }
 
-  async findAll(request: Request): Promise<Usuario[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
+  async findAll(): Promise<Usuario[]> { 
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).lean().exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec(); 
+    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec(); 
+    return this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores"]).lean().exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
@@ -99,5 +106,13 @@ export class UsuarioService {
   }
   async addPoule(id: string, idp: string): Promise<Usuario> { 
       return this.usuarioModel.findOneAndUpdate({_id: id},  {$push: {"Poules": {_id: idp}}},{new:true});
+  }
+
+  async findAllUnactive(): Promise<Usuario[]> { 
+    return this.usuarioModel.find({Activado: false}).setOptions({sanitizeFilter : true}).exec();
+  }
+
+  async removeAllUnactive(correo : string){
+    return this.usuarioModel.findOneAndRemove({Correo:correo}).exec();
   }
 }

@@ -13,4 +13,7 @@ export class CreatePouleDto {
 
   @ApiProperty()
   readonly Valores: number[];
+
+  @ApiProperty({default: 1})
+  readonly Estado: number
 }

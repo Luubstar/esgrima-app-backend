@@ -12,7 +12,7 @@ export class Poule {
   @Prop({default:"Poule"})
   Tipo: string;
 
-  @Prop()
+  @Prop({default: 1})
   Estado: number;
 
   @Prop()

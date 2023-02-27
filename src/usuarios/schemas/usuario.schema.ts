@@ -25,7 +25,13 @@ export class Usuario {
   @Prop({default: false})
   Activado: boolean;
 
+  @Prop({default:Date.now})
+  Creado: Date;
+
   @Prop({type:[{type:Types.ObjectId, ref:Poule.name}]}) 
   Poules: Poule[];
+
+  @Prop({default: ""})
+  Imagen64: string;
 } 
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario).index({Nombre:1}).index({Correo:1}, {unique:true}).index({Sala:1});

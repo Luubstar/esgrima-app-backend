@@ -11,5 +11,8 @@ export class CreateUsuarioDto {
   @ApiProperty({ example: "<password>" })
   readonly Clave: string;
 
+  @ApiProperty({ example: "" })
+  readonly Imagen64: string;
+
 
 }

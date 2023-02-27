@@ -5,6 +5,8 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { MongoExceptionFilter } from 'src/mongo-exception.filter';
+import { Cron } from '@nestjs/schedule';
+import { Throttle } from '@nestjs/throttler';
 
 var mailer = require("nodemailer");
 
@@ -17,7 +19,6 @@ let transporter = mailer.createTransport({
   },
 });
 
-
 @Controller('usuarios')
 @ApiTags('usuarios')
 
@@ -27,14 +28,11 @@ export class UsuarioController {
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
-      let usuario = await this.usuarioService.findNivel(correo, clave);
-      if (usuario){
+      if (this.usuarioService.findActivado(correo,clave)){
         let usuario = await this.usuarioService.findByMail(correo);
         return "ACEPTADO/" + usuario["_id"];
       }
-      else{
-        return "NO ACTIVADO"
-      }
+      else{return "NO ACTIVADO"}
     }
 
   @Get("nivel/:correo/:clave")
@@ -48,18 +46,18 @@ export class UsuarioController {
   async activarbyId(@Param('id') id: string) {
     await this.usuarioService.activarUsuario(id);
     return "Inicio de sesión autorizado. Ya puedes usar la aplicación";
-  }
+  } 
 
-  @Post()
+  @Post(":correo")
   @UseFilters(MongoExceptionFilter)
-  async create(@Body() createUsuarioDto: CreateUsuarioDto) {
+  async create(@Body() createUsuarioDto: CreateUsuarioDto, @Param('correo') correo: string) {
       let usuario = await this.usuarioService.create(createUsuarioDto);
       var mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para activar tu cuenta, debes entrar en este enlace\n"+
-      "http://localhost:3000/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
+      "https://esgrimapp-backend.fly.dev/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
       " mandando un correo a nbaronariera@gmail.com";
       var mailoptions = {
         from: '"Usuario registrado correctamente" <noreply@esgrimapp.com>',
-        to: usuario["Correo"],
+        to: correo,
         subject: 'Activa tu cuenta',
         text: mensaje,
       };  
@@ -75,15 +73,11 @@ export class UsuarioController {
     
   }
 
-  @Get("all/:correo/:clave")
+  @Get("all")
   @UseFilters(MongoExceptionFilter)
-  async findAll(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string) {
-    if (await this.usuarioService.checkIfAuth(correo, clave)){
-      return this.usuarioService.findAll(request);
-    }
-    else{
-      return "No estás autorizado";
-    }
+  async findAll() {
+      return this.usuarioService.findAll();
+   
   }
 
   @Get("all/botones/:correo/:clave")
@@ -198,16 +192,25 @@ export class UsuarioController {
     }
   }
 
-  @Delete('correo/:correopropio/:clave/:correo')
+  @Delete('correo/:correopropio/:clave')
   @UseFilters(MongoExceptionFilter)
-  async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Param('correo') id: string) {
-    if (await this.usuarioService.checkIfAdmin(correop, clave)){
-      return this.usuarioService.removebyMail(id);
+  async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string) {
+    if (await this.usuarioService.checkIfAuth(correop, clave)){
+      await this.usuarioService.removebyMail(correop);
+      return "Eliminado";
     }
     else{
       return "No hay permisos suficientes";
     }
   }
 
+  @Cron("0 0 0 * * 1")
+  async removeNotActive(){
+    let usuarios =  await this.usuarioService.findAllUnactive();
+    usuarios.forEach(usuario => {
+      let date = new Date()
+      if((usuario.Creado.getTime()  + 1000*60*60*24*7 )< (date.getTime())){this.usuarioService.removeAllUnactive(usuario.Correo);}
+    });
+  }
   
 }
