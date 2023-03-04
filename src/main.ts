@@ -10,7 +10,7 @@ async function bootstrap() {
     basicAuth({
         challenge: true,
         users: {
-            Admin: process.env.CLAVEADMINs,
+            Admin: process.env.CLAVEADMIN,
         },
     }),);
     app.enableCors();
