@@ -10,7 +10,7 @@ export class Usuario {
   @Prop() 
   Nombre: string;
 
-  @Prop()
+  @Prop({default: "SAJI"})
   Sala: string;
 
   @Prop()

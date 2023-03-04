@@ -49,6 +49,7 @@ export class UsuarioController {
   } 
 
   @Post(":correo")
+  @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
   async create(@Body() createUsuarioDto: CreateUsuarioDto, @Param('correo') correo: string) {
       let usuario = await this.usuarioService.create(createUsuarioDto);

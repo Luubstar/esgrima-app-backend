@@ -52,7 +52,8 @@ export class UsuarioService {
   }
 
   async create(createBookDto: CreateUsuarioDto): Promise<Usuario> { 
-    return this.usuarioModel.create(createBookDto); 
+    let usuario = await this.usuarioModel.create(createBookDto); 
+    return usuario;
   }
 
   async findAll(): Promise<Usuario[]> { 

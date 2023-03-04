@@ -14,5 +14,8 @@ export class CreateUsuarioDto {
   @ApiProperty({ example: "" })
   readonly Imagen64: string;
 
+  @ApiProperty({ default: "SAJI" })
+  readonly Sala: string;
+
 
 }

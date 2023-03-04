@@ -3,28 +3,24 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-
   app.use(
     ['/docs', '/docs-json'],
     basicAuth({
         challenge: true,
         users: {
-            Admin: 'LuubStar',
+            Admin: process.env.CLAVEADMINs,
         },
-    }),
-);
+    }),);
     app.enableCors();
     app.use(helmet());
 
   // Configurar títulos de documentación
   const options = new DocumentBuilder() 
     .setTitle('MongoDB REST API')
-    .setDescription('API REST de EsgrimaApp')
-    .setVersion('0.0')
+    .setDescription('API REST de EsgrimApp')
+    .setVersion('0.7.0')
     .build();
   const document = SwaggerModule.createDocument(app, options); 
 
