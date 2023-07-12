@@ -43,8 +43,4 @@ export class SalaService {
       new: true, 
     });
   }
-
-  async removebyName(id: string) { 
-    return this.usuarioModel.findOneAndRemove({ Nombre: id }).lean().exec(); 
-  }
 }
