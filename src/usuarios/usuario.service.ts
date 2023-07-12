@@ -26,15 +26,21 @@ export class UsuarioService {
     catch{return false;}
   }
 
+  async checkIfExists(correo : string, clave : string){
+    try{
+    let usuario = await this.findByMail(correo);
+    return usuario["Clave"] == clave;}
+    catch{return false;}
+  }
+
   async checkIfAdmin(correo:string, contraseña:string){
     return (await this.findNivel(correo, contraseña) == adminrole)
   }
 
   async checklogin(correo:string, clave:string) {
-    if (await this.checkIfAuth(correo, clave)){
-      let usuario = await this.findByMail(correo);
-      return usuario["Activado"];
-    }
+    if (await this.checkIfAuth(correo, clave))
+    {return true;}
+    else{return false;}
   }
 
   async findActivado(correo:string, clave:string) {
@@ -87,12 +93,6 @@ export class UsuarioService {
 
   async remove(id: string) { 
     return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
-  }
-
-  async updatebyMail(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
-    return this.usuarioModel.findOneAndUpdate({ Correo: id }, updateBookDto, { 
-      new: true, 
-    });
   }
 
   async removebyMail(id: string) { 

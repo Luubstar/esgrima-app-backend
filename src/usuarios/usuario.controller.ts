@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseFilters } fr
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiHideProperty, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { MongoExceptionFilter } from 'src/mongo-exception.filter';
 import { Cron } from '@nestjs/schedule';
@@ -25,22 +25,27 @@ let transporter = mailer.createTransport({
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
+  @ApiOperation({summary : "Revisa si la contraseña y el correo son correctos, y si el usuario está activado"})
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
-      if (this.usuarioService.findActivado(correo,clave)){
-        let usuario = await this.usuarioService.findByMail(correo);
-        return "ACEPTADO/" + usuario["_id"];
+      if (await this.usuarioService.checkIfExists(correo,clave)){
+        if (await this.usuarioService.checkIfAuth(correo,clave))
+        {  let usuario = await this.usuarioService.findByMail(correo);
+          return "ACEPTADO/" + usuario["_id"];}
+        else{return "NO ACTIVADO";}
       }
-      else{return "NO ACTIVADO"}
+      else{return "ERROR"}
     }
 
+  @ApiOperation({summary: "Devuelve el nivel de seguridad del usuario"})
   @Get("nivel/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string ) {
     return this.usuarioService.findNivel(correo, contraseña);
   }
 
+  @ApiOperation({summary: "Activa al usuario con la id indicada"})
   @Get("activar/:id")
   @UseFilters(MongoExceptionFilter)
   async activarbyId(@Param('id') id: string) {
@@ -48,6 +53,7 @@ export class UsuarioController {
     return "Inicio de sesión autorizado. Ya puedes usar la aplicación";
   } 
 
+  @ApiOperation({summary:"Te registra en la aplicación y te manda un correo"})
   @Post(":correo")
   @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
@@ -74,6 +80,7 @@ export class UsuarioController {
     
   }
 
+  @ApiOperation({summary:"Devuelve todos los usuarios"})
   @Get("all")
   @UseFilters(MongoExceptionFilter)
   async findAll() {
@@ -81,6 +88,7 @@ export class UsuarioController {
    
   }
 
+  @ApiOperation({summary:"Devuelve todos los usuarios para mostrarlos como un botón"})
   @Get("all/botones/:correo/:clave")
   async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
@@ -91,12 +99,14 @@ export class UsuarioController {
     }
   }
 
+  @ApiOperation({summary:"Devuelve un usuario por ID"})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
   findOnebyID(@Param('id') id: string) {
     return this.usuarioService.findById(id);
   }
 
+  @ApiOperation({summary: "Devuelve un usuario al buscar por nombre"})
   @Get("nombre/:correo/:clave/:nombre")
   @UseFilters(MongoExceptionFilter)
   async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string) {
@@ -105,36 +115,41 @@ export class UsuarioController {
   }
   }
 
+  @ApiOperation({summary: "Devueve un usuario al buscar por mail  "})
   @Get("correo/:correo")
   @UseFilters(MongoExceptionFilter)
   findOneByMail(@Param("correo") id:string) {
     return this.usuarioService.findByMail(id);
   }
 
+  @ApiOperation({summary:"Devuelve los usuarios de una sala"})
   @Get("sala/:sala")
   @UseFilters(MongoExceptionFilter)
   findOneBySala(@Param("sala") id:string) {
     return this.usuarioService.findBySala(id);
   }
 
-  //gets pero de 1 dato
+  @ApiOperation({summary:"Devuelve un usuario por un filtro genérico"})
   @Get('id/:id/:filtro')
   @UseFilters(MongoExceptionFilter)
   findOnebyIDandFilter(@Param('id') id: string, @Param("filtro") filtro : string) {
     return this.usuarioService.findById(id)[filtro];
   }
+  @ApiOperation({summary:"Devuelve todos los usuarios por un filtro genérico"})
   @Get("nombre/:nombre/:filtro")
   @UseFilters(MongoExceptionFilter)
   findAllWithNameandFilter(@Param("nombre") name:string, @Param("filtro") filtro : string) {
     return this.usuarioService.findByName(name)[filtro];
   }
 
+  @ApiOperation({summary: "Devuelve un usuario por filtro de mail y otro filtro genérico"})
   @Get("correo/:correo/:filtro")
   @UseFilters(MongoExceptionFilter)
   findOneByMailandFilter(@Param("correo") id:string, @Param("filtro") filtro : string) {
     return this.usuarioService.findByMail(id)[filtro];
   }
 
+  @ApiOperation({summary: "Devuelve un usuario por filtro de sala y un filtro genérico"})
   @Get("sala/:sala/:filtro")
   @UseFilters(MongoExceptionFilter)
   findOneBySalaandFilter(@Param("sala") id:string, @Param("filtro") filtro : string) {
@@ -142,6 +157,7 @@ export class UsuarioController {
   }
 
 
+  @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
   @Patch('id/:correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
   async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
@@ -153,6 +169,7 @@ export class UsuarioController {
     }
   }
 
+  @ApiOperation({summary: "Añade una poule a un usuario por ID de ambos"})
   @Get('poule/add/:correo/:clave/:id/:pouleid')
   @UseFilters(MongoExceptionFilter)
   async addPoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
@@ -162,6 +179,7 @@ export class UsuarioController {
     return "Error de autentificación";
   }
 
+  @ApiOperation({summary: "Elimina una poule de un usuario por ID de ambos"})
   @Get('poule/remove/:correo/:clave/:id/:pouleid')
   @UseFilters(MongoExceptionFilter)
   async removePoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
@@ -171,6 +189,7 @@ export class UsuarioController {
     return "Error de autentificación";
   }
 
+  @ApiOperation({summary: "Elimina un usuario"})
   @Delete('id/:correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
   async remove(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string) {
@@ -182,17 +201,8 @@ export class UsuarioController {
       }
   }
 
-
-  @Patch('correo/:correopropio/:clave/:correo')
-  @UseFilters(MongoExceptionFilter)
-  async updatebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Param('correo') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-    if (await this.usuarioService.checkIfAdmin(correop, clave)){
-      return this.usuarioService.updatebyMail(id, updateUsuarioDto);}
-    else{
-      return "No hay permisos suficientes"
-    }
-  }
-
+  @ApiOperation({summary: "Elimina a un usario. Este Endpoint es el que se llama al intentar eliminar tu propia cuenta"})
+  @ApiHideProperty()
   @Delete('correo/:correopropio/:clave')
   @UseFilters(MongoExceptionFilter)
   async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string) {

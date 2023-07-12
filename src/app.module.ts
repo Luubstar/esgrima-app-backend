@@ -10,7 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.RUTADB), 
+    MongooseModule.forRoot("mongodb+srv://Admin:LuubStar1@mainserver.r4fjvrb.mongodb.net/Usuarios"), 
     UsuarioModule, PoulesModule, SalaModule,ThrottlerModule.forRoot({
       ttl: 10,
       limit: 20,

@@ -3,6 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(
@@ -10,7 +11,7 @@ async function bootstrap() {
     basicAuth({
         challenge: true,
         users: {
-            Admin: process.env.CLAVEADMIN,
+            Admin: "Admin",
         },
     }),);
     app.enableCors();
