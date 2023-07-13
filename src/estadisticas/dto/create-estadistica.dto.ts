@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateEstadisticaDto {
 
-  @ApiProperty({example: "ID de usuario, se pone automáticamente"}) 
+  @ApiProperty({readOnly : true}) 
   Usuario: string
 
-  @ApiProperty({default: 0, example: 0})
-  readonly Mes: number;
+  @ApiProperty({readOnly : true})
+  Mes: number;
 
-  @ApiProperty({default: 2023, example: 2023})
-  readonly Año : number
+  @ApiProperty({readOnly : true})
+  Año : number
 
   @ApiProperty({default : 0, example: 0})
   readonly Victorias : number

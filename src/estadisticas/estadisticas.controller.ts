@@ -24,14 +24,22 @@ export class EstadisticasController {
   @Post(":correo/:clave")
   async create(@Body() createEstadisticaDto: CreateEstadisticaDto, @Param("correo") correo:string, @Param("clave") clave:string) {
       var res = await this.GetIDByLoggin(correo, clave);
-      console.log(res);
-      if (res.length > 0){
+      var date = new Date();
+      if (res.length > 0)
+      {
+        if (!(await this.estadisticasService.checkIfMultiple(res.toString(), date.getMonth(), date.getFullYear()))){
         createEstadisticaDto["Usuario"] = res.toString();
-        console.log(createEstadisticaDto);
+        createEstadisticaDto["Mes"] = date.getMonth();
+        createEstadisticaDto["Año"] = date.getFullYear();
         return this.estadisticasService.create(createEstadisticaDto);
+        }
+        else{
+          return "REPETIDO";
+        }
       }
-      else {return "ERROR AL AUTENTIFICAR"}
+      else {return "ERROR"}
   }
+
   @ApiOperation({summary: "Devuelve todas las estadísticas"})
   @Get()
   async findAll(@Req() request: Request) {

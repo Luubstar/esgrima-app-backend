@@ -33,4 +33,8 @@ export class EstadisticasService {
   async remove(id: string) { 
     return this.estadisticaModel.findByIdAndRemove({ _id: id }).lean().exec(); 
   }
+
+  async checkIfMultiple(Usuario:string, Mes:number, Año:number) : Promise<boolean>{ 
+    return !(await this.estadisticaModel.findOne({ Usuario: Usuario, Mes: Mes, Año:Año}).setOptions({sanitizeFilter : true}).exec() == null);
+  }
 }
