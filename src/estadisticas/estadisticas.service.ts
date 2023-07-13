@@ -37,4 +37,8 @@ export class EstadisticasService {
   async checkIfMultiple(Usuario:string, Mes:number, Año:number) : Promise<boolean>{ 
     return !(await this.estadisticaModel.findOne({ Usuario: Usuario, Mes: Mes, Año:Año}).setOptions({sanitizeFilter : true}).exec() == null);
   }
+
+  async getFromUser(Usuario:string, Mes:number, Año:number) : Promise<Estadisticas>{ 
+    return  this.estadisticaModel.findOne({ Usuario: Usuario, Mes: Mes, Año:Año}).setOptions({sanitizeFilter : true});
+  }
 }

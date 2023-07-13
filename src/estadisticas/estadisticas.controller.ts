@@ -52,6 +52,12 @@ export class EstadisticasController {
     return this.estadisticasService.findOne(id);
   }
 
+  @ApiOperation({summary: "Elimina una estadistica"})
+  @Get(':userID/:month/:year')
+  async GetByUser(@Param('userID') id: string,@Param("month") mes:number, @Param("year") año:number) {
+    return this.estadisticasService.getFromUser(id,mes,año);
+  }
+
   @ApiOperation({summary: "Actualiza una estadistica por ID"})
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateEstadisticaDto: UpdateEstadisticaDto) {
