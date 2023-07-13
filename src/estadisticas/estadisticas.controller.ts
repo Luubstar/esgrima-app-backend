@@ -2,12 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Req, HttpSta
 import { EstadisticasService } from './estadisticas.service';
 import { CreateEstadisticaDto } from './dto/create-estadistica.dto';
 import { UpdateEstadisticaDto } from './dto/update-estadistica.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiHideProperty, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {Request } from "express";
 import { UsuarioController } from 'src/usuarios/usuario.controller';
 
 @Controller('estadisticas')
 @ApiTags('estadisticas')
+
+//TODO: Debo mejorar esto...
 
 export class EstadisticasController {
   constructor(private readonly estadisticasService: EstadisticasService) {}
@@ -16,9 +18,7 @@ export class EstadisticasController {
 
   async GetIDByLoggin(correo : string, clave : string):Promise<String> {
     var res = await this.usuario.checkIfLogged(correo, clave);
-    console.log(res);
-    if (res.startsWith("ACEPTADO")) {return res.split("/")[1];}
-    return "";
+    return res;
   }
 
   @ApiOperation({summary: "Crea una estadística para un usuario"})
@@ -60,15 +60,24 @@ export class EstadisticasController {
   }
 
   @ApiOperation({summary: "Actualiza una estadistica por ID"})
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateEstadisticaDto: UpdateEstadisticaDto) {
-    throw new HttpException(this.estadisticasService.update(id, updateEstadisticaDto),HttpStatus.OK);
+  @ApiHideProperty()
+  @Patch(':correo/:clave/:id')
+  async update(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string, @Body() updateEstadisticaDto: UpdateEstadisticaDto) {
+    if ((await this.GetIDByLoggin(correo, clave)).length > 0){
+      throw new HttpException(this.estadisticasService.update(id, updateEstadisticaDto),HttpStatus.OK);}
+    else{
+      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+    }
   }
 
   @ApiOperation({summary: "Elimina una estadistica"})
+  @ApiHideProperty()
   @Delete(':correo/:clave/:id')
   async remove(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string) {
     if ((await this.GetIDByLoggin(correo, clave)).length > 0){
     throw new HttpException(this.estadisticasService.remove(id),HttpStatus.OK);}
+    else{
+      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+    }
   }
 }

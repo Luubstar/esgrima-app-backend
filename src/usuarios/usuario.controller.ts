@@ -34,7 +34,7 @@ export class UsuarioController {
       if (await this.usuarioService.checkIfExists(correo,clave)){
         if (await this.usuarioService.checkIfAuth(correo,clave))
         {  let usuario = await this.usuarioService.findByMail(correo);
-          throw new HttpException(usuario["_id"], HttpStatus.ACCEPTED);} 
+          return usuario["_id"].toString();} 
         else{throw new HttpException("Cuenta no autorizada. Autorizala en tu correo electrónico", HttpStatus.UNAUTHORIZED);}
       } 
       else{throw new HttpException("Cuenta no encontrada", HttpStatus.UNAUTHORIZED);}
