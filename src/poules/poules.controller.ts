@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject,UseFilters} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject,UseFilters, HttpException, HttpStatus} from '@nestjs/common';
 import { PoulesService } from './poules.service';
 import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
@@ -26,9 +26,11 @@ export class PoulesController {
   async create(@Body() createPouleDto: CreatePouleDto,@Param("correo") correo:string,@Param("clave") clave:string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
         let poule = await this.usuarioService.create(createPouleDto);
-        return poule["_id"];
+        throw new HttpException(poule["_id"],HttpStatus.OK);
     }
-    return "ERROR";
+    else{
+      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+    }
   }
 
   @ApiOperation({summary : "Devuelve todas las poules"})
@@ -36,15 +38,16 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async findAll(@Req() request: Request,@Param("correo") correo:string,@Param("clave") clave:string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-    return this.usuarioService.findAll(request);
+      throw new HttpException(this.usuarioService.findAll(request),HttpStatus.OK);
     }
+    else{throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);}
   }
 
   @ApiOperation({summary : "Devuelve una poule por id"})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
   findOne(@Param('id') id: string) {
-    return this.usuarioService.findOne(id);
+    throw new HttpException(this.usuarioService.findOne(id),HttpStatus.OK);
   }
 
 
@@ -52,7 +55,7 @@ export class PoulesController {
   @Get('id/:id/:valor')
   @UseFilters(MongoExceptionFilter)
   findOneReturnUsuarios(@Param('id') id: string, @Param('valor') valor: string) {
-    return this.usuarioService.findOneReturnFilter(id,valor);
+    throw new HttpException(this.usuarioService.findOneReturnFilter(id,valor),HttpStatus.OK);
   }
 
   @ApiOperation({summary : "Actualiza una poule"})
@@ -60,10 +63,10 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updatePouleDto: UpdatePouleDto) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
-    return this.usuarioService.update(id, updatePouleDto);
+      throw new HttpException(this.usuarioService.update(id, updatePouleDto),HttpStatus.OK);
     }
     else{
-      return "No tienes los permisos suficientes"
+      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -72,10 +75,10 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async remove(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
-      return this.usuarioService.remove(id);
+      throw new HttpException(this.usuarioService.remove(id),HttpStatus.OK);
     }
     else{
-      return "No tienes los permisos suficientes";
+      throw new HttpException("No tienes los permisos",HttpStatus.FORBIDDEN);
     }
   }
 
@@ -84,9 +87,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async addPoule(@Param('lista') lista: string,@Param('correo') correo: string,@Param('clave') clave: string,@Param('idusuario') iduser: string,@Param('pouleid') idpoule: string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.addfromlista(idpoule, iduser,lista);
+      throw new HttpException(this.usuarioService.addfromlista(idpoule, iduser,lista),HttpStatus.OK);
     }
-    return "Error de autentificación";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
 
   @ApiOperation({summary : "Elimina una lista de poules de un usuario"})
@@ -94,9 +97,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async removePoule(@Param('lista') lista: string,@Param('correo') correo: string,@Param('clave') clave: string,@Param('idusuario') iduser: string,@Param('pouleid') idpoule: string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.removefromlista(idpoule, iduser,lista);
+      throw new HttpException(this.usuarioService.removefromlista(idpoule, iduser,lista),HttpStatus.OK);
     }
-    return "Error de autentificación";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
   
   @ApiOperation({summary : "Cambia el estado de una poule"})
@@ -104,9 +107,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.setEstado(idpoule, changeEstadoDTO);
+      throw new HttpException(this.usuarioService.setEstado(idpoule, changeEstadoDTO),HttpStatus.OK);
     }
-    return "ERROR";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
 
   @ApiOperation({summary : "Establece los vencedores de la poule"})
@@ -114,9 +117,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async changePouleVencedores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changePouleVencedoresDTO: changePouleVencedores) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.setVencedores(idpoule, changePouleVencedoresDTO);
+      throw new HttpException(this.usuarioService.setVencedores(idpoule, changePouleVencedoresDTO),HttpStatus.OK);
     }
-    return "ERROR";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
 
   @ApiOperation({summary : "Cambia los valores de una poule"})
@@ -124,9 +127,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeValoresDTO: changeValoresDto) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        return this.usuarioService.setValores(idpoule, changeValoresDTO);
+      throw new HttpException(this.usuarioService.setValores(idpoule, changeValoresDTO),HttpStatus.OK);
     }
-    return "ERROR";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
 
   @ApiOperation({summary : "Obtiene los valores de una poule"})
@@ -134,9 +137,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async getPoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-        let poule =  await this.usuarioService.getValores(idpoule);
-        return poule["Valores"];
+      let poule =  await this.usuarioService.getValores(idpoule);
+      throw new HttpException(poule["Valores"],HttpStatus.OK);
     }
-    return "ERROR";
+    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
   }
 }
