@@ -2,21 +2,21 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Req } from '
 import { EstadisticasService } from './estadisticas.service';
 import { CreateEstadisticaDto } from './dto/create-estadistica.dto';
 import { UpdateEstadisticaDto } from './dto/update-estadistica.dto';
-import { UsuarioService } from 'src/usuarios/usuario.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {Request } from "express";
+import { UsuarioController } from 'src/usuarios/usuario.controller';
 
 @Controller('estadisticas')
 @ApiTags('estadisticas')
 
 export class EstadisticasController {
   constructor(private readonly estadisticasService: EstadisticasService) {}
-  @Inject(UsuarioService)
+  @Inject(UsuarioController)
   private readonly usuario;
 
   async GetIDByLoggin(correo : string, clave : string):Promise<String> {
-    var res = await this.usuario.checkIfAuth(correo, clave);
-    if (res.startsWith("ACTIVADO")) {return res.split("/")[1];}
+    var res = await this.usuario.checkIfLogged(correo, clave);
+    if (res.startsWith("ACEPTADO")) {return res.split("/")[1];}
     return "";
   }
 
@@ -24,10 +24,13 @@ export class EstadisticasController {
   @Post(":correo/:clave")
   async create(@Body() createEstadisticaDto: CreateEstadisticaDto, @Param("correo") correo:string, @Param("clave") clave:string) {
       var res = await this.GetIDByLoggin(correo, clave);
+      console.log(res);
       if (res.length > 0){
         createEstadisticaDto["Usuario"] = res.toString();
+        console.log(createEstadisticaDto);
         return this.estadisticasService.create(createEstadisticaDto);
       }
+      else {return "ERROR AL AUTENTIFICAR"}
   }
   @ApiOperation({summary: "Devuelve todas las estadísticas"})
   @Get()

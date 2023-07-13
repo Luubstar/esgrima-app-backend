@@ -10,7 +10,7 @@ import { PoulesModule } from 'src/poules/poules.module';
     MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema}]),forwardRef(() => PoulesModule)
   ],
   controllers: [UsuarioController],
-  providers: [UsuarioService],
-  exports: [UsuarioService, UsuarioModule ]
+  providers: [UsuarioService, UsuarioController],
+  exports: [UsuarioService, UsuarioModule, UsuarioController]
 })
 export class UsuarioModule {}

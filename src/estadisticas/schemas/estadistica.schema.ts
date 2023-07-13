@@ -30,4 +30,4 @@ export class Estadisticas {
   PoulesTotales : number
 
 } 
-export const EstadistcaSchema = SchemaFactory.createForClass(Estadisticas).index({Usuario:1});
+export const EstadisticaSchema = SchemaFactory.createForClass(Estadisticas).index({Usuario:1});

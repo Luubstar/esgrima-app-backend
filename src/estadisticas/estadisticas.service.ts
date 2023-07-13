@@ -9,28 +9,28 @@ import {Request } from "express";
 @Injectable()
 export class EstadisticasService {
   constructor( 
-    @InjectModel(Estadisticas.name) private readonly usuarioModel: Model<EstadisticaDocument>, 
+    @InjectModel(Estadisticas.name) private readonly estadisticaModel: Model<EstadisticaDocument>, 
   ) {}
 
-  async create(createBookDto: CreateEstadisticaDto): Promise<Estadisticas> { 
-    return this.usuarioModel.create(createBookDto); 
+  async create(createEstadisticaDto: CreateEstadisticaDto): Promise<Estadisticas> { 
+    return this.estadisticaModel.create(createEstadisticaDto); 
   }
 
   async findAll(request: Request): Promise<Estadisticas[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true})
+    return this.estadisticaModel.find(request.query).setOptions({sanitizeFilter : true})
   }
 
   async findOne(id: string): Promise<Estadisticas> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true})
+    return this.estadisticaModel.findOne({ _id: id }).setOptions({sanitizeFilter : true})
   }
 
   async update(id: string, updateBookDto: UpdateEstadisticaDto): Promise<Estadisticas> { 
-    return this.usuarioModel.findOneAndUpdate({ _id: id }, updateBookDto, { 
+    return this.estadisticaModel.findOneAndUpdate({ _id: id }, updateBookDto, { 
       new: true, 
     });
   }
 
   async remove(id: string) { 
-    return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
+    return this.estadisticaModel.findByIdAndRemove({ _id: id }).lean().exec(); 
   }
 }
