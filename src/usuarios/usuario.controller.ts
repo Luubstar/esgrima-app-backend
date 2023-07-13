@@ -28,7 +28,7 @@ export class UsuarioController {
   @ApiOperation({summary : "Revisa si la contraseña y el correo son correctos, y si el usuario está activado"})
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
-  async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
+  public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
       if (await this.usuarioService.checkIfExists(correo,clave)){
         if (await this.usuarioService.checkIfAuth(correo,clave))
         {  let usuario = await this.usuarioService.findByMail(correo);
