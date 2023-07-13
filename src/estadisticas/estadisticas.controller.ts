@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Req, HttpSta
 import { EstadisticasService } from './estadisticas.service';
 import { CreateEstadisticaDto } from './dto/create-estadistica.dto';
 import { UpdateEstadisticaDto } from './dto/update-estadistica.dto';
-import { ApiHideProperty, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConflictResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import {Request } from "express";
 import { UsuarioController } from 'src/usuarios/usuario.controller';
+import { Estadisticas } from './schemas/estadistica.schema';
 
 @Controller('estadisticas')
 @ApiTags('estadisticas')
@@ -22,6 +23,9 @@ export class EstadisticasController {
   }
 
   @ApiOperation({summary: "Crea una estadística para un usuario"})
+  @ApiConflictResponse({description: "Si existe un conflicto al crear la estadística", type:String})
+  @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
+  @ApiOkResponse({description:"La estadística creada", type:Estadisticas})
   @Post(":correo/:clave")
   async create(@Body() createEstadisticaDto: CreateEstadisticaDto, @Param("correo") correo:string, @Param("clave") clave:string) {
       var res = await this.GetIDByLoggin(correo, clave);
@@ -38,9 +42,10 @@ export class EstadisticasController {
           throw new HttpException("Ya existen estadísticas con ese mes y año para el usuario",HttpStatus.CONFLICT)
         }
       }
-      else {throw new HttpException("Usuario no encontrado",HttpStatus.BAD_REQUEST)}
+      else {throw new HttpException("Usuario no encontrado",HttpStatus.UNAUTHORIZED)}
   }
 
+  @ApiOkResponse({description:"Las estadisticas", isArray:true,type:Estadisticas})
   @ApiOperation({summary: "Devuelve todas las estadísticas"})
   @Get()
   async findAll(@Req() request: Request) {
@@ -48,11 +53,13 @@ export class EstadisticasController {
   }
 
   @ApiOperation({summary: "Encuentra una estadística por id"})
+  @ApiOkResponse({description:"La estadistica (si la encuentra)", type:Estadisticas})
   @Get(':id')
   async findOne(@Param('id') id: string) {
     throw new HttpException(this.estadisticasService.findOne(id),HttpStatus.OK);
   }
 
+  @ApiOkResponse({description:"La estadistica (si la encuentra)", type:Estadisticas})
   @ApiOperation({summary: "Encuentra una estadística dado un usuario, mes y año"})
   @Get(':userID/:month/:year')
   async GetByUser(@Param('userID') id: string,@Param("month") mes:number, @Param("year") año:number) {
@@ -60,6 +67,8 @@ export class EstadisticasController {
   }
 
   @ApiOperation({summary: "Actualiza una estadistica por ID"})
+  @ApiOkResponse({description:"La estadistica actualizada", type:Estadisticas})
+  @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @ApiHideProperty()
   @Patch(':correo/:clave/:id')
   async update(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string, @Body() updateEstadisticaDto: UpdateEstadisticaDto) {
@@ -70,7 +79,9 @@ export class EstadisticasController {
     }
   }
 
+  @ApiOkResponse({description:"La estadistica eliminada", type:Estadisticas})
   @ApiOperation({summary: "Elimina una estadistica"})
+  @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @ApiHideProperty()
   @Delete(':correo/:clave/:id')
   async remove(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string) {
