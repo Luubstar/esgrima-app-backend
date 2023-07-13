@@ -15,7 +15,7 @@ export class EstadisticasController {
   private readonly usuario;
 
   async GetIDByLoggin(correo : string, clave : string):Promise<String> {
-    var res = this.usuario.checkIfLogged(correo, clave);
+    var res = await this.usuario.checkIfAuth(correo, clave);
     if (res.startsWith("ACTIVADO")) {return res.split("/")[1];}
     return "";
   }
