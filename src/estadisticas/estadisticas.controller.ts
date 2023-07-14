@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Req, HttpSta
 import { EstadisticasService } from './estadisticas.service';
 import { CreateEstadisticaDto } from './dto/create-estadistica.dto';
 import { UpdateEstadisticaDto } from './dto/update-estadistica.dto';
-import { ApiConflictResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiConflictResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import {Request } from "express";
-import { UsuarioController } from 'src/usuarios/usuario.controller';
 import { Estadisticas } from './schemas/estadistica.schema';
+import { UsuarioService } from 'src/usuarios/usuario.service';
 
 @Controller('estadisticas')
 @ApiTags('estadisticas')
@@ -14,18 +14,18 @@ import { Estadisticas } from './schemas/estadistica.schema';
 
 export class EstadisticasController {
   constructor(private readonly estadisticasService: EstadisticasService) {}
-  @Inject(UsuarioController)
+  @Inject(UsuarioService)
   private readonly usuario;
 
   async GetIDByLoggin(correo : string, clave : string):Promise<String> {
-    var res = await this.usuario.checkIfLogged(correo, clave);
+    var res = await this.usuario.GetIfLoged(correo, clave);
     return res;
   }
 
   @ApiOperation({summary: "Crea una estadística para un usuario"})
   @ApiConflictResponse({description: "Si existe un conflicto al crear la estadística", type:String})
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
-  @ApiOkResponse({description:"La estadística creada", type:Estadisticas})
+  @ApiAcceptedResponse({description:"La estadística creada", type:Estadisticas})
   @Post(":correo/:clave")
   async create(@Body() createEstadisticaDto: CreateEstadisticaDto, @Param("correo") correo:string, @Param("clave") clave:string) {
       var res = await this.GetIDByLoggin(correo, clave);
@@ -36,7 +36,7 @@ export class EstadisticasController {
         createEstadisticaDto["Usuario"] = res.toString();
         createEstadisticaDto["Mes"] = date.getMonth();
         createEstadisticaDto["Año"] = date.getFullYear();
-        throw new HttpException(this.estadisticasService.create(createEstadisticaDto),HttpStatus.OK);
+        throw new HttpException(this.estadisticasService.create(createEstadisticaDto),HttpStatus.ACCEPTED);
         }
         else{
           throw new HttpException("Ya existen estadísticas con ese mes y año para el usuario",HttpStatus.CONFLICT)
@@ -84,7 +84,7 @@ export class EstadisticasController {
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @ApiHideProperty()
   @Delete(':correo/:clave/:id')
-  async remove(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string) {
+  async remove(@Param('id') id: string,@Param("correo") correo:string, @Param("clave") clave:string) {  
     if ((await this.GetIDByLoggin(correo, clave)).length > 0){
     throw new HttpException(this.estadisticasService.remove(id),HttpStatus.OK);}
     else{

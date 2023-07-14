@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject,UseFilte
 import { PoulesService } from './poules.service';
 import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
-import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { UsuarioService } from 'src/usuarios/usuario.service';
 import { MongoExceptionFilter } from 'src/mongo-exception.filter';
@@ -24,13 +24,13 @@ export class PoulesController {
   @ApiOperation({summary : "Crea una poule nueva, devuelve una id"})
   @Post(":correo/:clave")
   @Throttle(1,180)
-  @ApiOkResponse({description:"ID de la sala creada", type:String})
+  @ApiAcceptedResponse({description:"ID de la sala creada", type:String})
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @UseFilters(MongoExceptionFilter)
   async create(@Body() createPouleDto: CreatePouleDto,@Param("correo") correo:string,@Param("clave") clave:string) {
     if (await this.usuario.checkIfAuth(correo, clave)){
         let poule = await this.usuarioService.create(createPouleDto);
-        throw new HttpException(poule["_id"],HttpStatus.OK);
+        throw new HttpException(poule["_id"],HttpStatus.ACCEPTED);
     }
     else{
       throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);

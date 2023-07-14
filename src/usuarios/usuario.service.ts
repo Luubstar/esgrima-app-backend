@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -115,5 +115,15 @@ export class UsuarioService {
 
   async removeAllUnactive(correo : string){
     return this.usuarioModel.findOneAndRemove({Correo:correo}).exec();
+  }
+
+  public async GetIfLoged(correo : string, clave :string) : Promise<string>{
+    if (await this.checkIfExists(correo,clave)){
+      if (await this.checkIfAuth(correo,clave))
+      {  let usuario = await this.findByMail(correo);
+        return usuario["_id"].toString();} 
+      else{throw new HttpException("Cuenta no autorizada. Autorizala en tu correo electrónico", HttpStatus.UNAUTHORIZED);}
+    } 
+    else{throw new HttpException("Cuenta no encontrada", HttpStatus.UNAUTHORIZED);}
   }
 }

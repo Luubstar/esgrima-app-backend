@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject, HttpExc
 import { SalaService } from './sala.service';
 import { CreateSalaDto } from './dto/create-sala.dto';
 import { UpdateSalaDto } from './dto/update-sala.dto';
-import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { UsuarioService } from 'src/usuarios/usuario.service';
 import { Sala } from './schemas/sala.schema';
@@ -18,10 +18,10 @@ export class SalaController {
   @ApiOperation({summary : "Crea una nueva sala"})
   @Post(":correo/:clave")
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
-  @ApiOkResponse({description:"La sala creada", type:Sala})
+  @ApiAcceptedResponse({description:"La sala creada", type:Sala})
   async create(@Param("correo") correo:string,@Param("clave") clave:string,@Body() createUsuarioDto: CreateSalaDto) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.create(createUsuarioDto),HttpStatus.OK);}
+      throw new HttpException(this.usuarioService.create(createUsuarioDto),HttpStatus.ACCEPTED);}
     else{
       throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);}
   }

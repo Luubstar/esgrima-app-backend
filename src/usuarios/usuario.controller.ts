@@ -30,16 +30,14 @@ export class UsuarioController {
 
   @ApiOperation({summary : "Revisa si la contraseña y el correo son correctos, y si el usuario está activado"})
   @ApiUnauthorizedResponse({description: "No se ha encontrado la cuenta o no está activada"})
+  @ApiAcceptedResponse({description:"La id del usuario aceptado"})
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
-      if (await this.usuarioService.checkIfExists(correo,clave)){
-        if (await this.usuarioService.checkIfAuth(correo,clave))
-        {  let usuario = await this.usuarioService.findByMail(correo);
-          return usuario["_id"].toString();} 
-        else{throw new HttpException("Cuenta no autorizada. Autorizala en tu correo electrónico", HttpStatus.UNAUTHORIZED);}
-      } 
-      else{throw new HttpException("Cuenta no encontrada", HttpStatus.UNAUTHORIZED);}
+      var res = await this.usuarioService.GetIfLoged(correo, clave)
+      if (res.length > 0){
+        throw new HttpException(res, HttpStatus.ACCEPTED);
+      }
     }
 
   @ApiOperation({summary: "Devuelve el nivel de seguridad del usuario"})
