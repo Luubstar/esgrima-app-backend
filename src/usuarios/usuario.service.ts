@@ -23,9 +23,9 @@ export class UsuarioService {
       if (await this.checkIfAuth(correo,clave))
       {  let usuario = await this.findByMail(correo);
         return usuario["_id"].toString();} 
-      else{res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}
+      else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}
     } 
-    else{res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no encontrada");}
+    else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no encontrada");}
   }
 
   async checkIfAuth(correo : string, clave : string){

@@ -28,10 +28,10 @@ export class PoulesController {
   async create(@Body() createPouleDto: CreatePouleDto,@Param("correo") correo:string,@Param("clave") clave:string, @Res() res:Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
         let poule = await this.pouleService.create(createPouleDto);
-        res.status(HttpStatus.ACCEPTED).send(poule["_id"]);
+        return res.status(HttpStatus.ACCEPTED).send(poule["_id"]);
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -42,9 +42,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async findAll(@Req() request: Request,@Param("correo") correo:string,@Param("clave") clave:string, @Res() res:Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.pouleService.findAll(request));
+      return res.status(HttpStatus.OK).send(await this.pouleService.findAll(request));
     }
-    else{res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
+    else{return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
   }
 
   @ApiOperation({summary : "Devuelve una poule por id"})
@@ -52,7 +52,7 @@ export class PoulesController {
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
   async findOne(@Param('id') id: string, @Req() res: Response) {
-    res.status(HttpStatus.OK).send(await this.pouleService.findOne(id));
+    return res.status(HttpStatus.OK).send(await this.pouleService.findOne(id));
   }
 
   
@@ -63,10 +63,10 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Res() res:Response, @Body() updatePouleDto: UpdatePouleDto) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.pouleService.update(id, updatePouleDto));
+      return res.status(HttpStatus.OK).send(await this.pouleService.update(id, updatePouleDto));
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -78,9 +78,9 @@ export class PoulesController {
   async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
     var poule = await this.findOne(idpoule,res);
     if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idpoule)) || this.usuario.checkIfAdmin(correo,clave)){
-      res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
+      return res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
     }
-    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+    return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary : "Cambia los valores de una poule"})
@@ -90,9 +90,9 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeValoresDTO: changeValoresDto, @Res() res: Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.pouleService.setValores(idpoule, correo, clave, changeValoresDTO, res));
+      await this.pouleService.setValores(idpoule, correo, clave, changeValoresDTO, res)
     }
-    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+    else{return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización")};
   }
 
   @ApiOperation({summary : "Obtiene los valores de una poule"})
@@ -103,8 +103,8 @@ export class PoulesController {
   async getPoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Res() res: Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
       let poule =  await this.pouleService.getValores(idpoule);
-      res.status(HttpStatus.OK).send(poule["Valores"]);
+      return res.status(HttpStatus.OK).send(poule["Valores"]);
     }
-    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+    return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 }

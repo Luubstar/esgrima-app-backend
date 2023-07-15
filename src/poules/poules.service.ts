@@ -1,4 +1,4 @@
-import { Injectable, Inject, Res, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, Res, HttpStatus, HttpException } from '@nestjs/common';
 import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -54,7 +54,7 @@ export class PoulesService {
       this.setVencedores(idpoule, null);
       //Codigo para crear/actualizar estadísticas
     }
-    else{ res.status(HttpStatus.FORBIDDEN).send("Estado no válido");}
+
   }
 
   async setVencedores(idpoule: string, estado: changePouleVencedores): Promise<Poule> { 
@@ -69,29 +69,33 @@ export class PoulesService {
         var oldVal = poule["Valores"];
         var dif = await this.dif(oldVal, newVal, res);
 
-        var pos = 0
+        var pos = -1
         var step = poule["Tiradores"].length;
         for(var i = 0; i < dif.length; i++){
           if (i%step == 0){pos += 1}
-          if(dif[i] != 0 && pos != poule["Tiradores"].indexOf(idUsuario)){console.log("Mallll");}
+          if(dif[i] != 0 && pos != poule["Tiradores"].indexOf(idUsuario)){return res.status(HttpStatus.UNAUTHORIZED).send("No estás autorizado para hacer este cambio...Es el valor de otro usuario 🧐")}
         }
-        res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
-        
+        return res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true})); 
       }
       else{
-        res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
+        return res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
       }
     }
-    else{res.status(HttpStatus.UNAUTHORIZED).send("No estás autorizado para hacer este cambio")}
+    else{return res.status(HttpStatus.UNAUTHORIZED).send("No estás autorizado para hacer este cambio")}
   }
   async getValores(idpoule: string): Promise<Poule> { 
     return this.usuarioModel.findOne({ _id: idpoule }).setOptions({sanitizeFilter : true}).lean().exec();
   }
 
   async dif (oldVal:number[], newVal:number[],@Res() res:Response) : Promise<number[]>{
+    try{
     var difVal = [];
-    if (oldVal.length != newVal.length){res.status(HttpStatus.BAD_REQUEST).send("Error con el tamaño de las listas");}
+    if (oldVal.length != newVal.length){ throw new HttpException("Error con los tamaños", HttpStatus.BAD_REQUEST);}
     for(var i = 0; i < oldVal.length; i++){difVal[i] = (oldVal[i] - newVal[i]);}
-    return difVal
+    return difVal}
+    catch{
+      res.status(HttpStatus.BAD_REQUEST).send("Error con el tamaño de las listas");
+      return null;
+    }
   }
 }

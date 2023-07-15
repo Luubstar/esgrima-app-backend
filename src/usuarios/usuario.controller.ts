@@ -34,7 +34,7 @@ export class UsuarioController {
   public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string,@Res() res:Response) {
       var result = await this.usuarioService.GetIfLoged(correo, clave,res)
       if (result.length > 0){
-        res.status(HttpStatus.ACCEPTED).send(res);
+        return res.status(HttpStatus.ACCEPTED).send(res);
       }
     }
 
@@ -43,7 +43,7 @@ export class UsuarioController {
   @Get("nivel/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string,@Res() res:Response ) {
-    res.status(HttpStatus.OK).send(await this.usuarioService.findNivel(correo, contraseña));
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findNivel(correo, contraseña));
   }
 
   @ApiOperation({summary: "Activa al usuario con la id indicada"})
@@ -74,10 +74,10 @@ export class UsuarioController {
       };  
 
       let info = await transporter.sendMail(mailoptions);
-      if (info != null){res.status(HttpStatus.ACCEPTED).send(usuario["_id"]);}
+      if (info != null){return res.status(HttpStatus.ACCEPTED).send(usuario["_id"]);}
 
       await this.usuarioService.remove(usuario["_id"]);
-      res.status(HttpStatus.SERVICE_UNAVAILABLE).send("Correo no encontrado");
+      return res.status(HttpStatus.SERVICE_UNAVAILABLE).send("Correo no encontrado");
   }
 
   @ApiOperation({summary:"Devuelve todos los usuarios"})
@@ -85,7 +85,7 @@ export class UsuarioController {
   @Get("all")
   @UseFilters(MongoExceptionFilter)
   async findAll(@Res() res:Response) {
-    res.status(HttpStatus.OK).send(await this.usuarioService.findAll()); 
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findAll()); 
    
   }
 
@@ -95,10 +95,10 @@ export class UsuarioController {
   @Get("all/botones/:correo/:clave")
   async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.findAllbtn(request)); 
+      return res.status(HttpStatus.OK).send(await this.usuarioService.findAllbtn(request)); 
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -107,7 +107,7 @@ export class UsuarioController {
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
   async findOnebyID(@Param('id') id: string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(await this.usuarioService.findById(id));
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findById(id));
   }
 
   @ApiOperation({summary: "Devuelve un usuario al buscar por nombre"})
@@ -117,10 +117,10 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.findByName(name));
+      return res.status(HttpStatus.OK).send(await this.usuarioService.findByName(name));
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -129,7 +129,7 @@ export class UsuarioController {
   @Get("correo/:correo")
   @UseFilters(MongoExceptionFilter)
   async findOneByMail(@Param("correo") id:string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(await this.usuarioService.findByMail(id));
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findByMail(id));
   }
 
   @ApiOperation({summary:"Devuelve los usuarios de una sala"})
@@ -137,7 +137,7 @@ export class UsuarioController {
   @Get("sala/:sala")
   @UseFilters(MongoExceptionFilter)
   async findOneBySala(@Param("sala") id:string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(await this.usuarioService.findBySala(id));
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findBySala(id));
   }
 
   @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
@@ -147,10 +147,10 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));
+      return res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -161,9 +161,9 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async addPoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.addPoule(id, pid));
+      return res.status(HttpStatus.OK).send(await this.usuarioService.addPoule(id, pid));
     }
-    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+    return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary: "Elimina una poule de un usuario por ID de ambos"})
@@ -173,9 +173,9 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async removePoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.removePoule(id, pid));
+      return res.status(HttpStatus.OK).send(await this.usuarioService.removePoule(id, pid));
     }
-    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+    return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary: "Elimina un usuario"})
@@ -185,10 +185,10 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async remove(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(await this.usuarioService.remove(id));
+      return res.status(HttpStatus.OK).send(await this.usuarioService.remove(id));
       }
       else{
-        res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+        return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
       }
   }
 
@@ -201,10 +201,10 @@ export class UsuarioController {
   async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correop, clave)){
       await this.usuarioService.removebyMail(correop);
-      res.status(HttpStatus.OK).send("Usuario eliminado");
+      return res.status(HttpStatus.OK).send("Usuario eliminado");
     }
     else{
-      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
   
