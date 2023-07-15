@@ -43,7 +43,7 @@ export class UsuarioController {
   @Get("nivel/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string,@Res() res:Response ) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findNivel(correo, contraseña));
+    res.status(HttpStatus.OK).send(await this.usuarioService.findNivel(correo, contraseña));
   }
 
   @ApiOperation({summary: "Activa al usuario con la id indicada"})
@@ -85,7 +85,7 @@ export class UsuarioController {
   @Get("all")
   @UseFilters(MongoExceptionFilter)
   async findAll(@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findAll()); 
+    res.status(HttpStatus.OK).send(await this.usuarioService.findAll()); 
    
   }
 
@@ -95,7 +95,7 @@ export class UsuarioController {
   @Get("all/botones/:correo/:clave")
   async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(this.usuarioService.findAllbtn(request)); 
+      res.status(HttpStatus.OK).send(await this.usuarioService.findAllbtn(request)); 
     }
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
@@ -106,8 +106,8 @@ export class UsuarioController {
   @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
-  findOnebyID(@Param('id') id: string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findById(id));
+  async findOnebyID(@Param('id') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findById(id));
   }
 
   @ApiOperation({summary: "Devuelve un usuario al buscar por nombre"})
@@ -117,7 +117,7 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(this.usuarioService.findByName(name));
+      res.status(HttpStatus.OK).send(await this.usuarioService.findByName(name));
     }
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
@@ -128,16 +128,16 @@ export class UsuarioController {
   @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
   @Get("correo/:correo")
   @UseFilters(MongoExceptionFilter)
-  findOneByMail(@Param("correo") id:string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findByMail(id));
+  async findOneByMail(@Param("correo") id:string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findByMail(id));
   }
 
   @ApiOperation({summary:"Devuelve los usuarios de una sala"})
   @ApiOkResponse({description:"Los usuarios pertenecientes a la sala",isArray:true, type:Usuario})
   @Get("sala/:sala")
   @UseFilters(MongoExceptionFilter)
-  findOneBySala(@Param("sala") id:string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findBySala(id));
+  async findOneBySala(@Param("sala") id:string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findBySala(id));
   }
 
   @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
@@ -147,7 +147,7 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(this.usuarioService.update(id, updateUsuarioDto));
+      res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));
     }
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");

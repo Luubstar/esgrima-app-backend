@@ -42,7 +42,7 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async findAll(@Req() request: Request,@Param("correo") correo:string,@Param("clave") clave:string, @Res() res:Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(this.pouleService.findAll(request));
+      res.status(HttpStatus.OK).send(await this.pouleService.findAll(request));
     }
     else{res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
   }
@@ -51,8 +51,8 @@ export class PoulesController {
   @ApiOkResponse({description:"La poule (si la encuentra)", type:Poule})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
-  findOne(@Param('id') id: string, @Req() res: Response) {
-    res.status(HttpStatus.OK).send(this.pouleService.findOne(id));
+  async findOne(@Param('id') id: string, @Req() res: Response) {
+    res.status(HttpStatus.OK).send(await this.pouleService.findOne(id));
   }
 
   
@@ -63,7 +63,7 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Res() res:Response, @Body() updatePouleDto: UpdatePouleDto) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(this.pouleService.update(id, updatePouleDto));
+      res.status(HttpStatus.OK).send(await this.pouleService.update(id, updatePouleDto));
     }
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
@@ -78,7 +78,7 @@ export class PoulesController {
   async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
     var poule = await this.findOne(idpoule,res);
     if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idpoule)) || this.usuario.checkIfAdmin(correo,clave)){
-      res.status(HttpStatus.OK).send(this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
+      res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
     }
     res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
@@ -90,7 +90,7 @@ export class PoulesController {
   @UseFilters(MongoExceptionFilter)
   async changePoulevalores(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeValoresDTO: changeValoresDto, @Res() res: Response) {
     if (await this.usuario.checkIfAuth(correo, clave)){
-      res.status(HttpStatus.OK).send(this.pouleService.setValores(idpoule, correo, clave, changeValoresDTO, res));
+      res.status(HttpStatus.OK).send(await this.pouleService.setValores(idpoule, correo, clave, changeValoresDTO, res));
     }
     res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }

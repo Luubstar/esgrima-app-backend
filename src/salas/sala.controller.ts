@@ -21,7 +21,7 @@ export class SalaController {
   @ApiAcceptedResponse({description:"La sala creada", type:Sala})
   async create(@Param("correo") correo:string,@Param("clave") clave:string,@Body() createUsuarioDto: CreateSalaDto,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.ACCEPTED).send(this.usuarioService.create(createUsuarioDto));}
+      res.status(HttpStatus.ACCEPTED).send(await this.usuarioService.create(createUsuarioDto));}
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
   }
@@ -29,15 +29,15 @@ export class SalaController {
   @ApiOperation({summary : "Devuelve todas las salas"})
   @ApiOkResponse({description:"La sala creada", type:Sala, isArray:true})
   @Get()
-  findAll(@Req() request: Request,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findAll(request));
+  async findAll(@Req() request: Request,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findAll(request));
   }
 
   @ApiOperation({summary : "Obtiene una sala por ID"})
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @Get(':id')
-  findOne(@Param('id') id: string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findOne(id));
+  async findOne(@Param('id') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findOne(id));
   }
 
   @ApiOperation({summary : "Actualiza la sala (si tienes los permisos)"})
@@ -46,7 +46,7 @@ export class SalaController {
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateSalaDto,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(this.usuarioService.update(id, updateUsuarioDto));}
+      res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));}
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
@@ -58,7 +58,7 @@ export class SalaController {
   @Delete(':correo/:clave/:id')
   async remove(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      res.status(HttpStatus.OK).send(this.usuarioService.remove(id));}
+      res.status(HttpStatus.OK).send(await this.usuarioService.remove(id));}
     else{
       res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización, usuario no activado");
     }
@@ -67,8 +67,8 @@ export class SalaController {
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @ApiOperation({summary : "Encuentra una sala por nombre"})
   @Get('nombre/:nombre')
-  findOneByName(@Param('nombre') id: string,@Res() res:Response) {
-    res.status(HttpStatus.OK).send(this.usuarioService.findOneByName(id));
+  async findOneByName(@Param('nombre') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(await this.usuarioService.findOneByName(id));
   }
   
 }

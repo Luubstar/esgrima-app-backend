@@ -15,18 +15,18 @@ export class EstadisticasController {
   @ApiOperation({summary: "Devuelve todas las estadísticas"})
   @Get()
   async findAll(@Req() request: Request, @Res() res : Response) {
-    res.status(HttpStatus.OK).send(this.estadisticasService.findAll(request));
+    res.status(HttpStatus.OK).send(await this.estadisticasService.findAll(request));
   }
 
   @ApiOperation({summary: "Encuentra una estadística por id"})
   @ApiOkResponse({description:"La estadistica (si la encuentra)", type:Estadisticas})
   @Get(':id')
   async findOne(@Param('id') id: string,@Res() res : Response) {
-    res.status(HttpStatus.OK).send(this.estadisticasService.findOne(id));
+    res.status(HttpStatus.OK).send(await this.estadisticasService.findOne(id));
   }
 
   @ApiOkResponse({description:"La estadistica (si la encuentra)", type:Estadisticas})
   @ApiOperation({summary: "Encuentra una estadística dado un usuario, mes y año"})
   @Get(':userID/:month/:year')
-  async GetByUser(@Param('userID') id: string,@Param("month") mes:number, @Param("year") año:number,@Res() res : Response) {res.status(HttpStatus.OK).send(this.estadisticasService.getFromUser(id,mes,año));}
+  async GetByUser(@Param('userID') id: string,@Param("month") mes:number, @Param("year") año:number,@Res() res : Response) {res.status(HttpStatus.OK).send(await this.estadisticasService.getFromUser(id,mes,año));}
 }
