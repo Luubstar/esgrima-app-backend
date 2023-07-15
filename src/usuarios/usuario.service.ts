@@ -6,6 +6,7 @@ import { Usuario, UsuarioDocument } from './schemas/usuario.schema';
 import { Model } from 'mongoose';
 import {Request } from "express";
 import { PoulesService } from 'src/poules/poules.service';
+import { Cron } from '@nestjs/schedule';
 
 
 
@@ -125,5 +126,15 @@ export class UsuarioService {
       else{throw new HttpException("Cuenta no autorizada. Autorizala en tu correo electrónico", HttpStatus.UNAUTHORIZED);}
     } 
     else{throw new HttpException("Cuenta no encontrada", HttpStatus.UNAUTHORIZED);}
+  }
+
+
+  @Cron("0 0 0 * * 1")
+  async removeNotActive(){
+    let usuarios =  await this.findAllUnactive();
+    usuarios.forEach(usuario => {
+      let date = new Date()
+      if((usuario.Creado.getTime()  + 1000*60*60*24*7 )< (date.getTime())){this.removeAllUnactive(usuario.Correo);}
+    });
   }
 }

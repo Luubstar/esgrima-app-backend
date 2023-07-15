@@ -57,15 +57,7 @@ export class PoulesController {
     throw new HttpException(this.usuarioService.findOne(id),HttpStatus.OK);
   }
 
-
-  @ApiOperation({summary : "Devuelve una poule usando un filtro"})
-  @ApiOkResponse({description:"La poule (si la encuentra)", type:Poule})
-  @Get('id/:id/:valor')
-  @UseFilters(MongoExceptionFilter)
-  findOneReturnUsuarios(@Param('id') id: string, @Param('valor') valor: string) {
-    throw new HttpException(this.usuarioService.findOneReturnFilter(id,valor),HttpStatus.OK);
-  }
-
+  
   @ApiOkResponse({description:"La poule actualizada ", type:Poule})
   @ApiOperation({summary : "Actualiza una poule"})
   @ApiUnauthorizedResponse({description:"Si tienes permisos para ejecutar", type:String})

@@ -5,7 +5,6 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiAcceptedResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiServiceUnavailableResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { MongoExceptionFilter } from 'src/mongo-exception.filter';
-import { Cron } from '@nestjs/schedule';
 import { Throttle } from '@nestjs/throttler';
 import { Usuario } from './schemas/usuario.schema';
 
@@ -142,39 +141,6 @@ export class UsuarioController {
     throw new HttpException(this.usuarioService.findBySala(id),HttpStatus.OK);
   }
 
-  @ApiOperation({summary:"Devuelve un usuario por un filtro genérico"})
-  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
-  @Get('id/:id/:filtro')
-  @UseFilters(MongoExceptionFilter)
-  @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
-  findOnebyIDandFilter(@Param('id') id: string, @Param("filtro") filtro : string) {
-    throw new HttpException(this.usuarioService.findById(id)[filtro],HttpStatus.OK);
-  }
-  @ApiOperation({summary:"Devuelve todos los usuarios por un filtro genérico"})
-  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario, isArray:true})
-  @Get("nombre/:nombre/:filtro")
-  @UseFilters(MongoExceptionFilter)
-  findAllWithNameandFilter(@Param("nombre") name:string, @Param("filtro") filtro : string) {
-    throw new HttpException(this.usuarioService.findByName(name)[filtro],HttpStatus.OK);
-  }
-
-  @ApiOperation({summary: "Devuelve un usuario por filtro de mail y otro filtro genérico"})
-  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
-  @Get("correo/:correo/:filtro")
-  @UseFilters(MongoExceptionFilter)
-  findOneByMailandFilter(@Param("correo") id:string, @Param("filtro") filtro : string) {
-    throw new HttpException(this.usuarioService.findByMail(id)[filtro],HttpStatus.OK);
-  }
-
-  @ApiOperation({summary: "Devuelve un usuario por filtro de sala y un filtro genérico"})
-  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
-  @Get("sala/:sala/:filtro")
-  @UseFilters(MongoExceptionFilter)
-  findOneBySalaandFilter(@Param("sala") id:string, @Param("filtro") filtro : string) {
-    throw new HttpException(this.usuarioService.findBySala(id)[filtro],HttpStatus.OK);
-  }
-
-
   @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
   @ApiOkResponse({description:"El usuario actualizado", type:Usuario})
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
@@ -241,15 +207,6 @@ export class UsuarioController {
     else{
       throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
     }
-  }
-
-  @Cron("0 0 0 * * 1")
-  async removeNotActive(){
-    let usuarios =  await this.usuarioService.findAllUnactive();
-    usuarios.forEach(usuario => {
-      let date = new Date()
-      if((usuario.Creado.getTime()  + 1000*60*60*24*7 )< (date.getTime())){this.usuarioService.removeAllUnactive(usuario.Correo);}
-    });
   }
   
 }

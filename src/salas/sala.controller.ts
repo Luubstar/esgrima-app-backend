@@ -70,17 +70,5 @@ export class SalaController {
   findOneByName(@Param('nombre') id: string) {
     throw new HttpException(this.usuarioService.findOneByName(id),HttpStatus.OK);
   }
-
-  @ApiOkResponse({description:"La sala actualizada", type:Sala})
-  @ApiOperation({summary : "Actualiza una sala por nombre"})
-  @Patch('nombre/:correo/:clave/:nombre')
-  @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
-  async updatebyName(@Param("correo") correo:string,@Param("clave") clave:string, @Param('nombre') id: string, @Body() updateUsuarioDto: UpdateSalaDto) {
-    if (await this.usuario.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.updatebyName(id, updateUsuarioDto),HttpStatus.OK);}
-    else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
-    }
-  }
   
 }
