@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Res } from '@nestjs/common';
 import { CreateEstadisticaDto } from './dto/create-estadistica.dto';
 import { UpdateEstadisticaDto } from './dto/update-estadistica.dto';
 import { Estadisticas, EstadisticaDocument } from './schemas/estadistica.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {Request } from "express";
+import {Request, Response } from "express";
 
 @Injectable()
 export class EstadisticasService {
@@ -12,8 +12,19 @@ export class EstadisticasService {
     @InjectModel(Estadisticas.name) private readonly estadisticaModel: Model<EstadisticaDocument>, 
   ) {}
 
-  async create(createEstadisticaDto: CreateEstadisticaDto): Promise<Estadisticas> { 
-    return this.estadisticaModel.create(createEstadisticaDto); 
+  async create(createEstadisticaDto: CreateEstadisticaDto, Usuario:string, @Res() res: Response) {
+    var date = new Date();
+    if (Usuario.length > 0)
+    {
+      if (!(await this.checkIfMultiple(Usuario.toString(), date.getMonth(), date.getFullYear()))){
+        createEstadisticaDto["Usuario"] = Usuario.toString();
+        createEstadisticaDto["Mes"] = date.getMonth();
+        createEstadisticaDto["Año"] = date.getFullYear();
+        res.status(HttpStatus.ACCEPTED).send(this.estadisticaModel.create(createEstadisticaDto));
+      }
+      else{res.status(HttpStatus.CONFLICT).send("Ya existen estadísticas con ese mes y año para el usuario");}
+    }
+    else {res.status(HttpStatus.CONFLICT).send("Usuario no indicado");}
   }
 
   async findAll(request: Request): Promise<Estadisticas[]> { 

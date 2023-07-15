@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Inject, Res, HttpStatus } from '@nestjs/common';
 import { SalaService } from './sala.service';
 import { CreateSalaDto } from './dto/create-sala.dto';
 import { UpdateSalaDto } from './dto/update-sala.dto';
 import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { UsuarioService } from 'src/usuarios/usuario.service';
 import { Sala } from './schemas/sala.schema';
 
@@ -19,36 +19,36 @@ export class SalaController {
   @Post(":correo/:clave")
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   @ApiAcceptedResponse({description:"La sala creada", type:Sala})
-  async create(@Param("correo") correo:string,@Param("clave") clave:string,@Body() createUsuarioDto: CreateSalaDto) {
+  async create(@Param("correo") correo:string,@Param("clave") clave:string,@Body() createUsuarioDto: CreateSalaDto,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.create(createUsuarioDto),HttpStatus.ACCEPTED);}
+      res.status(HttpStatus.ACCEPTED).send(this.usuarioService.create(createUsuarioDto));}
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);}
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
   }
 
   @ApiOperation({summary : "Devuelve todas las salas"})
   @ApiOkResponse({description:"La sala creada", type:Sala, isArray:true})
   @Get()
-  findAll(@Req() request: Request) {
-    throw new HttpException(this.usuarioService.findAll(request),HttpStatus.OK);
+  findAll(@Req() request: Request,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findAll(request));
   }
 
   @ApiOperation({summary : "Obtiene una sala por ID"})
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    throw new HttpException(this.usuarioService.findOne(id),HttpStatus.OK);
+  findOne(@Param('id') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findOne(id));
   }
 
   @ApiOperation({summary : "Actualiza la sala (si tienes los permisos)"})
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @Patch(':correo/:clave/:id')
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
-  async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateSalaDto) {
+  async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateSalaDto,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.update(id, updateUsuarioDto),HttpStatus.OK);}
+      res.status(HttpStatus.OK).send(this.usuarioService.update(id, updateUsuarioDto));}
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -56,19 +56,19 @@ export class SalaController {
   @ApiOperation({summary : "Elimina una sala (Si tienes los permisos)"})
   @ApiUnauthorizedResponse({description:"Si el usuario existe y está activado", type:String})
   @Delete(':correo/:clave/:id')
-  async remove(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string) {
+  async remove(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.remove(id),HttpStatus.OK);}
+      res.status(HttpStatus.OK).send(this.usuarioService.remove(id));}
     else{
-      throw new HttpException("No tienes autorización, usuario no activado",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización, usuario no activado");
     }
   }
 
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @ApiOperation({summary : "Encuentra una sala por nombre"})
   @Get('nombre/:nombre')
-  findOneByName(@Param('nombre') id: string) {
-    throw new HttpException(this.usuarioService.findOneByName(id),HttpStatus.OK);
+  findOneByName(@Param('nombre') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findOneByName(id));
   }
   
 }

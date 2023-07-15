@@ -1,16 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseFilters, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseFilters, Res, HttpStatus } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiAcceptedResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiServiceUnavailableResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { MongoExceptionFilter } from 'src/mongo-exception.filter';
 import { Throttle } from '@nestjs/throttler';
 import { Usuario } from './schemas/usuario.schema';
 
 var mailer = require("nodemailer");
 
-//throw new HttpException(,HttpStatus.OK);
 
 let transporter = mailer.createTransport({
   service: "gmail",
@@ -32,10 +31,10 @@ export class UsuarioController {
   @ApiAcceptedResponse({description:"La id del usuario aceptado"})
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
-  public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string) {
-      var res = await this.usuarioService.GetIfLoged(correo, clave)
-      if (res.length > 0){
-        throw new HttpException(res, HttpStatus.ACCEPTED);
+  public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string,@Res() res:Response) {
+      var result = await this.usuarioService.GetIfLoged(correo, clave,res)
+      if (result.length > 0){
+        res.status(HttpStatus.ACCEPTED).send(res);
       }
     }
 
@@ -43,8 +42,8 @@ export class UsuarioController {
   @ApiOkResponse({description:"Devuelve el nivel del usuario buscado"})
   @Get("nivel/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
-  async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string ) {
-    throw new HttpException(this.usuarioService.findNivel(correo, contraseña), HttpStatus.OK);
+  async findNivel(@Param('correo') correo: string, @Param("clave") contraseña:string,@Res() res:Response ) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findNivel(correo, contraseña));
   }
 
   @ApiOperation({summary: "Activa al usuario con la id indicada"})
@@ -56,12 +55,13 @@ export class UsuarioController {
   } 
 
   @ApiOperation({summary:"Te registra en la aplicación y te manda un correo"})
-  @Post(":correo")
+  @Post("")
   @ApiAcceptedResponse({description: "Se ha registrado el usuario correctamente y el correo se ha enviado"})
   @ApiServiceUnavailableResponse({description: "No se ha podido mandar el correo electrónico"})
   @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
-  async create(@Body() createUsuarioDto: CreateUsuarioDto, @Param('correo') correo: string) {
+  async create(@Body() createUsuarioDto: CreateUsuarioDto,@Res() res:Response) {
+      var correo = createUsuarioDto["Correo"];
       let usuario = await this.usuarioService.create(createUsuarioDto);
       var mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para activar tu cuenta, debes entrar en este enlace\n"+
       "https://esgrimapp-backend.fly.dev/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
@@ -74,19 +74,18 @@ export class UsuarioController {
       };  
 
       let info = await transporter.sendMail(mailoptions);
-      if (info != null){throw new HttpException(usuario["_id"], HttpStatus.ACCEPTED);}
+      if (info != null){res.status(HttpStatus.ACCEPTED).send(usuario["_id"]);}
 
       await this.usuarioService.remove(usuario["_id"]);
-      throw new HttpException("Correo no encontrado", HttpStatus.SERVICE_UNAVAILABLE);
-    
+      res.status(HttpStatus.SERVICE_UNAVAILABLE).send("Correo no encontrado");
   }
 
   @ApiOperation({summary:"Devuelve todos los usuarios"})
   @ApiOkResponse({description:"El array con todos los usuarios", isArray:true, type:Usuario})
   @Get("all")
   @UseFilters(MongoExceptionFilter)
-  async findAll() {
-    throw new HttpException(this.usuarioService.findAll(), HttpStatus.OK); 
+  async findAll(@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findAll()); 
    
   }
 
@@ -94,12 +93,12 @@ export class UsuarioController {
   @ApiOkResponse({description:"Los usuarios con información reducida", isArray:true, type:Usuario})
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @Get("all/botones/:correo/:clave")
-  async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string) {
+  async findAllbotones(@Req() request: Request,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      throw new HttpException(this.usuarioService.findAllbtn(request), HttpStatus.OK); 
+      res.status(HttpStatus.OK).send(this.usuarioService.findAllbtn(request)); 
     }
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -107,8 +106,8 @@ export class UsuarioController {
   @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
-  findOnebyID(@Param('id') id: string) {
-    throw new HttpException(this.usuarioService.findById(id),HttpStatus.OK);
+  findOnebyID(@Param('id') id: string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findById(id));
   }
 
   @ApiOperation({summary: "Devuelve un usuario al buscar por nombre"})
@@ -116,12 +115,12 @@ export class UsuarioController {
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @Get("nombre/:correo/:clave/:nombre")
   @UseFilters(MongoExceptionFilter)
-  async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string) {
+  async findAllWithName(@Param("nombre") name:string,@Param('correo') correo: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      throw new HttpException(this.usuarioService.findByName(name),HttpStatus.OK);
+      res.status(HttpStatus.OK).send(this.usuarioService.findByName(name));
     }
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -129,16 +128,16 @@ export class UsuarioController {
   @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
   @Get("correo/:correo")
   @UseFilters(MongoExceptionFilter)
-  findOneByMail(@Param("correo") id:string) {
-    throw new HttpException(this.usuarioService.findByMail(id),HttpStatus.OK);
+  findOneByMail(@Param("correo") id:string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findByMail(id));
   }
 
   @ApiOperation({summary:"Devuelve los usuarios de una sala"})
   @ApiOkResponse({description:"Los usuarios pertenecientes a la sala",isArray:true, type:Usuario})
   @Get("sala/:sala")
   @UseFilters(MongoExceptionFilter)
-  findOneBySala(@Param("sala") id:string) {
-    throw new HttpException(this.usuarioService.findBySala(id),HttpStatus.OK);
+  findOneBySala(@Param("sala") id:string,@Res() res:Response) {
+    res.status(HttpStatus.OK).send(this.usuarioService.findBySala(id));
   }
 
   @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
@@ -146,12 +145,12 @@ export class UsuarioController {
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   @Patch('id/:correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
-  async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+  async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      throw new HttpException(this.usuarioService.update(id, updateUsuarioDto),HttpStatus.OK);
+      res.status(HttpStatus.OK).send(this.usuarioService.update(id, updateUsuarioDto));
     }
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
 
@@ -160,11 +159,11 @@ export class UsuarioController {
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @Get('poule/add/:correo/:clave/:id/:pouleid')
   @UseFilters(MongoExceptionFilter)
-  async addPoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
+  async addPoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      throw new HttpException(await this.usuarioService.addPoule(id, pid),HttpStatus.OK);
+      res.status(HttpStatus.OK).send(await this.usuarioService.addPoule(id, pid));
     }
-    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary: "Elimina una poule de un usuario por ID de ambos"})
@@ -172,11 +171,11 @@ export class UsuarioController {
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @Get('poule/remove/:correo/:clave/:id/:pouleid')
   @UseFilters(MongoExceptionFilter)
-  async removePoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string) {
+  async removePoule(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Param('pouleid') pid: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correo, clave)){
-      throw new HttpException(await this.usuarioService.removePoule(id, pid),HttpStatus.OK);
+      res.status(HttpStatus.OK).send(await this.usuarioService.removePoule(id, pid));
     }
-    throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+    res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary: "Elimina un usuario"})
@@ -184,12 +183,12 @@ export class UsuarioController {
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   @Delete('id/:correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
-  async remove(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string) {
+  async remove(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      throw new HttpException(await this.usuarioService.remove(id),HttpStatus.OK);
+      res.status(HttpStatus.OK).send(await this.usuarioService.remove(id));
       }
       else{
-        throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+        res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
       }
   }
 
@@ -199,13 +198,13 @@ export class UsuarioController {
   @ApiHideProperty()
   @Delete('correo/:correopropio/:clave')
   @UseFilters(MongoExceptionFilter)
-  async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string) {
+  async removebyMail(@Param('correopropio') correop: string,@Param('clave') clave: string,@Res() res:Response) {
     if (await this.usuarioService.checkIfAuth(correop, clave)){
       await this.usuarioService.removebyMail(correop);
-      throw new HttpException("Usuario eliminado",HttpStatus.OK);
+      res.status(HttpStatus.OK).send("Usuario eliminado");
     }
     else{
-      throw new HttpException("No tienes autorización",HttpStatus.UNAUTHORIZED);
+      res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
   }
   

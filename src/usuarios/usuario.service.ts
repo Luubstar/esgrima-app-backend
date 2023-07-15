@@ -1,11 +1,10 @@
-import { Injectable, Inject, forwardRef, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Res, HttpStatus } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Usuario, UsuarioDocument } from './schemas/usuario.schema';
 import { Model } from 'mongoose';
-import {Request } from "express";
-import { PoulesService } from 'src/poules/poules.service';
+import {Request, Response} from "express";
 import { Cron } from '@nestjs/schedule';
 
 
@@ -16,8 +15,17 @@ const entrenadorrole: string = "Entrenador";
 @Injectable()
 export class UsuarioService {
   constructor( 
-    @InjectModel(Usuario.name) private readonly usuarioModel: Model<UsuarioDocument>,  @Inject(forwardRef(() => PoulesService)) private readonly pouleService: PoulesService
+    @InjectModel(Usuario.name) private readonly usuarioModel: Model<UsuarioDocument>
   ) {
+  }
+  public async GetIfLoged(correo : string, clave :string,@Res() res:Response){
+    if (await this.checkIfExists(correo,clave)){
+      if (await this.checkIfAuth(correo,clave))
+      {  let usuario = await this.findByMail(correo);
+        return usuario["_id"].toString();} 
+      else{res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}
+    } 
+    else{res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no encontrada");}
   }
 
   async checkIfAuth(correo : string, clave : string){
@@ -63,8 +71,8 @@ export class UsuarioService {
     return usuario;
   }
 
-  async findAll(): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
+  async findAll() { 
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]);
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).lean().exec();
@@ -117,17 +125,6 @@ export class UsuarioService {
   async removeAllUnactive(correo : string){
     return this.usuarioModel.findOneAndRemove({Correo:correo}).exec();
   }
-
-  public async GetIfLoged(correo : string, clave :string) : Promise<string>{
-    if (await this.checkIfExists(correo,clave)){
-      if (await this.checkIfAuth(correo,clave))
-      {  let usuario = await this.findByMail(correo);
-        return usuario["_id"].toString();} 
-      else{throw new HttpException("Cuenta no autorizada. Autorizala en tu correo electrónico", HttpStatus.UNAUTHORIZED);}
-    } 
-    else{throw new HttpException("Cuenta no encontrada", HttpStatus.UNAUTHORIZED);}
-  }
-
 
   @Cron("0 0 0 * * 1")
   async removeNotActive(){
