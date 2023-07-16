@@ -25,7 +25,7 @@ describe('UsuarioService',  () => {
     }).compile();
     
     service = module.get<UsuarioService>(UsuarioService);
-    pservice = module.get<PoulesService>(UsuarioService);
+    pservice = module.get<PoulesService>(PoulesService);
 
   });
 

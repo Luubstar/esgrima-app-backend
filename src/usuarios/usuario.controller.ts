@@ -26,6 +26,8 @@ let transporter = mailer.createTransport({
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
+  getTransporter(){return transporter}
+
   @ApiOperation({summary : "Revisa si la contraseña y el correo son correctos, y si el usuario está activado"})
   @ApiUnauthorizedResponse({description: "No se ha encontrado la cuenta o no está activada"})
   @ApiAcceptedResponse({description:"La id del usuario aceptado"})
@@ -34,8 +36,9 @@ export class UsuarioController {
   public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string,@Res() res:Response) {
       var result = await this.usuarioService.GetIfLoged(correo, clave,res)
       if (result.length > 0){
-        return res.status(HttpStatus.ACCEPTED).send(res);
+        return res.status(HttpStatus.ACCEPTED).send(result);
       }
+      else{ return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
     }
 
   @ApiOperation({summary: "Devuelve el nivel de seguridad del usuario"})
@@ -110,6 +113,14 @@ export class UsuarioController {
     return res.status(HttpStatus.OK).send(await this.usuarioService.findById(id));
   }
 
+  @ApiOperation({summary: "Devueve un usuario al buscar por mail"})
+  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
+  @Get("correo/:correo")
+  @UseFilters(MongoExceptionFilter)
+  async findOneByMail(@Param("correo") id:string,@Res() res:Response) {
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findByMail(id));
+  }
+
   @ApiOperation({summary: "Devuelve un usuario al buscar por nombre"})
   @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
@@ -124,14 +135,6 @@ export class UsuarioController {
     }
   }
 
-  @ApiOperation({summary: "Devueve un usuario al buscar por mail"})
-  @ApiOkResponse({description:"El usuario (si se ha encontrado)", type:Usuario})
-  @Get("correo/:correo")
-  @UseFilters(MongoExceptionFilter)
-  async findOneByMail(@Param("correo") id:string,@Res() res:Response) {
-    return res.status(HttpStatus.OK).send(await this.usuarioService.findByMail(id));
-  }
-
   @ApiOperation({summary:"Devuelve los usuarios de una sala"})
   @ApiOkResponse({description:"Los usuarios pertenecientes a la sala",isArray:true, type:Usuario})
   @Get("sala/:sala")
@@ -141,13 +144,13 @@ export class UsuarioController {
   }
 
   @ApiOperation({summary: "Modifica a un usuario. Requiere permisos "})
-  @ApiOkResponse({description:"El usuario actualizado", type:Usuario})
+  @ApiAcceptedResponse({description:"El usuario actualizado", type:Usuario})
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   @Patch('id/:correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
   async update(@Param('correo') correo: string,@Param('clave') clave: string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto,@Res() res:Response) {
     if (await this.usuarioService.checkIfAdmin(correo, clave)){
-      return res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));
+      return res.status(HttpStatus.ACCEPTED).send(await this.usuarioService.update(id, updateUsuarioDto));
     }
     else{
       return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");

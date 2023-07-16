@@ -41,12 +41,12 @@ export class SalaController {
   }
 
   @ApiOperation({summary : "Actualiza la sala (si tienes los permisos)"})
-  @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
+  @ApiAcceptedResponse({description:"La sala (si se ha encontrado)", type:Sala})
   @Patch(':correo/:clave/:id')
   @ApiUnauthorizedResponse({description:"Si tienes el nivel para hacer la operación", type:String})
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Body() updateUsuarioDto: UpdateSalaDto,@Res() res:Response) {
     if (await this.usuario.checkIfAdmin(correo, clave)){
-      return res.status(HttpStatus.OK).send(await this.usuarioService.update(id, updateUsuarioDto));}
+      return res.status(HttpStatus.ACCEPTED).send(await this.usuarioService.update(id, updateUsuarioDto));}
     else{
       return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }

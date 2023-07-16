@@ -68,7 +68,7 @@ export class UsuarioService {
     return this.usuarioModel.create(createBookDto); 
   }
 
-  async findAll() { 
+  async findAll() : Promise<Usuario[]>{ 
     return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]);
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
@@ -98,12 +98,12 @@ export class UsuarioService {
     });
   }
 
-  async remove(id: string) { 
-    return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
+  async remove(id: string) : Promise<Usuario> { 
+    return this.usuarioModel.findByIdAndRemove({ _id: id }).exec(); 
   }
 
-  async removebyMail(id: string) { 
-    return this.usuarioModel.findOneAndRemove({ Correo: id }).lean().exec(); 
+  async removebyMail(id: string) : Promise<Usuario>{ 
+    return this.usuarioModel.findOneAndRemove({ Correo: id }).exec(); 
   }
 
   async activarUsuario(id: string): Promise<Usuario> { 

@@ -56,14 +56,14 @@ export class PoulesController {
   }
 
   
-  @ApiOkResponse({description:"La poule actualizada ", type:Poule})
+  @ApiAcceptedResponse({description:"La poule actualizada ", type:Poule})
   @ApiOperation({summary : "Actualiza una poule"})
   @ApiUnauthorizedResponse({description:"Si tienes permisos para ejecutar", type:String})
   @Patch(':correo/:clave/:id')
   @UseFilters(MongoExceptionFilter)
   async update(@Param("correo") correo:string,@Param("clave") clave:string,@Param('id') id: string, @Res() res:Response, @Body() updatePouleDto: UpdatePouleDto) {
     if(await this.usuario.checkIfAdmin(correo, clave)){
-      return res.status(HttpStatus.OK).send(await this.pouleService.update(id, updatePouleDto));
+      return res.status(HttpStatus.ACCEPTED).send(await this.pouleService.update(id, updatePouleDto));
     }
     else{
       return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
