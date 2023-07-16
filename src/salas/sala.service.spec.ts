@@ -21,10 +21,6 @@ describe('SalaService', () => {
     service = module.get<SalaService>(SalaService);
   });
 
-  afterAll(async () => {
-    await service.remove(createdSala["_id"]);
-  });
-
   it('should be defined', () => {
     expect(service).toBeDefined();
   });

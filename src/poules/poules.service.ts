@@ -24,11 +24,11 @@ export class PoulesService {
   }
 
   async findAll(request: Request): Promise<Poule[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).lean().exec();
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findOne(id: string): Promise<Poule> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).lean().exec(); 
+    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).exec(); 
   }
 
   async update(id: string, updateBookDto: UpdatePouleDto): Promise<Poule> { 
@@ -38,7 +38,7 @@ export class PoulesService {
   }
 
   async remove(id: string) { 
-    return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
+    return this.usuarioModel.findByIdAndRemove({ _id: id }).exec(); 
   }
 
 
@@ -85,7 +85,7 @@ export class PoulesService {
     else{return res.status(HttpStatus.UNAUTHORIZED).send("No estás autorizado para hacer este cambio")}
   }
   async getValores(idpoule: string): Promise<Poule> { 
-    return this.usuarioModel.findOne({ _id: idpoule }).setOptions({sanitizeFilter : true}).lean().exec();
+    return this.usuarioModel.findOne({ _id: idpoule }).setOptions({sanitizeFilter : true}).exec();
   }
 
   async dif (oldVal:number[], newVal:number[],@Res() res:Response) : Promise<number[]>{
