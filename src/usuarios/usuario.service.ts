@@ -17,7 +17,9 @@ export class UsuarioService {
   constructor( 
     @InjectModel(Usuario.name) private readonly usuarioModel: Model<UsuarioDocument>
   ) {
-  }
+  }  
+  
+  getModel(){return this.usuarioModel;}
   public async GetIfLoged(correo : string, clave :string,@Res() res:Response){
     if (await this.checkIfExists(correo,clave)){
       if (await this.checkIfAuth(correo,clave))
@@ -57,6 +59,7 @@ export class UsuarioService {
       let usuario = await this.findByMail(correo);
       return usuario["Activado"];
     }
+    else{return false;}
   }
 
   async findNivel(correo:string, clave:string) {
@@ -64,11 +67,11 @@ export class UsuarioService {
       let usuario = await this.findByMail(correo);
       return usuario["Nivel"];
     }
+    else{return null;}
   }
 
   async create(createBookDto: CreateUsuarioDto): Promise<Usuario> { 
-    let usuario = await this.usuarioModel.create(createBookDto); 
-    return usuario;
+    return this.usuarioModel.create(createBookDto); 
   }
 
   async findAll() { 
@@ -87,7 +90,8 @@ export class UsuarioService {
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
+    return usuario;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
@@ -109,7 +113,8 @@ export class UsuarioService {
   }
 
   async activarUsuario(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOneAndUpdate({ _id: id },{"Activado" : true});
+    let usuario = this.usuarioModel.findOneAndUpdate({ _id: id },{"Activado" : true});
+    return usuario;
   }
   async removePoule(id: string, idp: string): Promise<Usuario> { 
     return this.usuarioModel.findByIdAndUpdate({_id: id},  {$pull: {"Poules": {_id: idp}}},{new:true});
@@ -122,16 +127,13 @@ export class UsuarioService {
     return this.usuarioModel.find({Activado: false}).setOptions({sanitizeFilter : true}).exec();
   }
 
-  async removeAllUnactive(correo : string){
-    return this.usuarioModel.findOneAndRemove({Correo:correo}).exec();
-  }
 
   @Cron("0 0 0 * * 1")
   async removeNotActive(){
     let usuarios =  await this.findAllUnactive();
     usuarios.forEach(usuario => {
       let date = new Date()
-      if((usuario.Creado.getTime()  + 1000*60*60*24*7 )< (date.getTime())){this.removeAllUnactive(usuario.Correo);}
+      if((usuario.Creado.getTime()  + 1000*60*60*24*7 )< (date.getTime())){this.remove(usuario["_id"]);}
     });
   }
 }

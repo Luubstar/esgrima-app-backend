@@ -18,6 +18,7 @@ export class PoulesService {
   @Inject(UsuarioService)
   private readonly usuario;
 
+  getModel(){return this.usuarioModel;}
   async create(createBookDto: CreatePouleDto): Promise<Poule> { 
     return this.usuarioModel.create(createBookDto); 
   }
