@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Poule } from './schemas/poule.schema';
 import { Model } from 'mongoose';
 import {Request, Response } from "express";
-import { UsuarioService} from 'src/usuarios/usuario.service';
+import { UsuarioService} from '../usuarios/usuario.service';
 import { changeEstadoDto } from './dto/change-estado.dto';
 import { changePouleVencedores } from './dto/change-vencedores.dto';
 import { changeValoresDto } from './dto/change-valores.dto';

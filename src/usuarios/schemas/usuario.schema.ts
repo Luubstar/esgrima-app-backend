@@ -1,7 +1,7 @@
 
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose'; 
-import { Poule } from 'src/poules/schemas/poule.schema';
+import { Poule } from '../../poules/schemas/poule.schema';
 
 export type UsuarioDocument = Usuario & Document; 
 @Schema() 

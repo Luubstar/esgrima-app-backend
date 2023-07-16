@@ -4,7 +4,7 @@ import { CreateSalaDto } from './dto/create-sala.dto';
 import { UpdateSalaDto } from './dto/update-sala.dto';
 import { ApiAcceptedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { UsuarioService } from 'src/usuarios/usuario.service';
+import { UsuarioService } from '../usuarios/usuario.service';
 import { Sala } from './schemas/sala.schema';
 
 @Controller('salas')

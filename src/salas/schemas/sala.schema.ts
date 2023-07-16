@@ -1,6 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types, model } from 'mongoose'; 
-import { Usuario } from 'src/usuarios/schemas/usuario.schema';
+import { Usuario } from '../../usuarios/schemas/usuario.schema';
 export type SalaDocument = Sala & Document; 
 
 @Schema() 

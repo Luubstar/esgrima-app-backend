@@ -4,9 +4,9 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ApiAcceptedResponse, ApiHideProperty, ApiOkResponse, ApiOperation, ApiServiceUnavailableResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { MongoExceptionFilter } from 'src/mongo-exception.filter';
 import { Throttle } from '@nestjs/throttler';
 import { Usuario } from './schemas/usuario.schema';
+import { MongoExceptionFilter } from '../mongo-exception.filter';
 
 var mailer = require("nodemailer");
 

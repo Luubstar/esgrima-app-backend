@@ -3,7 +3,7 @@ import { EstadisticasService } from './estadisticas.service';
 import { EstadisticasController } from './estadisticas.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EstadisticaSchema, Estadisticas } from './schemas/estadistica.schema';
-import { UsuarioModule } from 'src/usuarios/usuario.module';
+import { UsuarioModule } from '../usuarios/usuario.module';
 @Module({imports: [
   MongooseModule.forFeature([{ name: Estadisticas.name, schema: EstadisticaSchema}]), UsuarioModule
 ],
