@@ -48,12 +48,6 @@ export class UsuarioService {
     return (await this.findNivel(correo, contraseña) == adminrole)
   }
 
-  async checklogin(correo:string, clave:string) {
-    if (await this.checkIfAuth(correo, clave))
-    {return true;}
-    else{return false;}
-  }
-
   async findActivado(correo:string, clave:string) {
     if (await this.checkIfAuth(correo, clave)){
       let usuario = await this.findByMail(correo);
@@ -78,24 +72,24 @@ export class UsuarioService {
     return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]);
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).lean().exec();
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
+    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec(); 
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec(); 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec(); 
     return usuario;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).lean().exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
@@ -117,10 +111,12 @@ export class UsuarioService {
     return usuario;
   }
   async removePoule(id: string, idp: string): Promise<Usuario> { 
-    return this.usuarioModel.findByIdAndUpdate({_id: id},  {$pull: {"Poules": {_id: idp}}},{new:true});
+    let usuario = this.usuarioModel.findByIdAndUpdate(id,  {$pull: {"Poules":idp}},{new:true});
+
+    return usuario;
   }
   async addPoule(id: string, idp: string): Promise<Usuario> { 
-      return this.usuarioModel.findOneAndUpdate({_id: id},  {$push: {"Poules": {_id: idp}}},{new:true});
+      return this.usuarioModel.findOneAndUpdate({_id: id},  {$push: {"Poules":  idp}},{new:true});
   }
 
   async findAllUnactive(): Promise<Usuario[]> { 

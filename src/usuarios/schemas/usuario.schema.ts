@@ -29,7 +29,7 @@ export class Usuario {
   Creado: Date;
 
   @Prop({type:[{type:Types.ObjectId, ref:Poule.name}]}) 
-  Poules: Poule[];
+  Poules: [{type:Types.ObjectId, ref:"Poules"}]
 
   @Prop({default: ""})
   Imagen64: string;

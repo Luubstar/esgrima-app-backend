@@ -4,12 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsuarioController } from './usuario.controller';
 import { Usuario, UsuarioSchema } from './schemas/usuario.schema';
 import { PoulesModule } from '../poules/poules.module';
-import { HttpStatus, Res } from '@nestjs/common';
-import {Request, Response} from "express";
+import { HttpStatus } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import mongoose, { model } from 'mongoose';
 import { CreatePouleDto } from '../poules/dto/create-poule.dto';
-import { UpdatePouleDto } from '../poules/dto/update-poule.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PoulesService } from '../poules/poules.service';
 const httpMocks = require('node-mocks-http');
@@ -17,7 +14,6 @@ const httpMocks = require('node-mocks-http');
 describe('UsuarioService',  () => {
   
   let service: UsuarioService;
-  let controller : UsuarioController
   let pservice : PoulesService;
 
   beforeAll(async () => {
@@ -29,7 +25,6 @@ describe('UsuarioService',  () => {
     }).compile();
     
     service = module.get<UsuarioService>(UsuarioService);
-    controller = module.get<UsuarioController>(UsuarioController);
     pservice = module.get<PoulesService>(UsuarioService);
 
   });
@@ -38,10 +33,7 @@ describe('UsuarioService',  () => {
     expect(service).toBeDefined();
   });
   
-
-  
-
-  describe("User creation, deletion, and finding", () => {
+  describe("User actions", () => {
 
     var Adoc = new CreateUsuarioDto();
     Adoc.Nombre = "A";
@@ -108,7 +100,6 @@ describe('UsuarioService',  () => {
     it ("should check the user values and activation", async () => {
       var res = httpMocks.createResponse();
       expect((await service.checkIfExists(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
-      expect((await service.checklogin(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
       expect((await service.checkIfAdmin(createdUser["Correo"], createdUser["Clave"]))).toBe(false);
       expect((await service.GetIfLoged(createdUser["Correo"], createdUser["Clave"], res))).toBe(createdUser["_id"].toString());
       expect((await service.findNivel(createdUser["Correo"], createdUser["Clave"]))).toBe(createdUser["Nivel"]);
