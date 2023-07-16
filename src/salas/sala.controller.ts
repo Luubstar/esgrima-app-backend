@@ -13,7 +13,7 @@ export class SalaController {
   constructor(private readonly usuarioService: SalaService) {}
 
   @Inject(UsuarioService)
-  private readonly usuario;
+  public readonly usuario;
 
   @ApiOperation({summary : "Crea una nueva sala"})
   @Post(":correo/:clave")
@@ -24,20 +24,6 @@ export class SalaController {
       return res.status(HttpStatus.ACCEPTED).send(await this.usuarioService.create(createUsuarioDto));}
     else{
       return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
-  }
-
-  @ApiOperation({summary : "Devuelve todas las salas"})
-  @ApiOkResponse({description:"La sala creada", type:Sala, isArray:true})
-  @Get()
-  async findAll(@Req() request: Request,@Res() res:Response) {
-    return res.status(HttpStatus.OK).send(await this.usuarioService.findAll(request));
-  }
-
-  @ApiOperation({summary : "Obtiene una sala por ID"})
-  @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
-  @Get(':id')
-  async findOne(@Param('id') id: string,@Res() res:Response) {
-    return res.status(HttpStatus.OK).send(await this.usuarioService.findOne(id));
   }
 
   @ApiOperation({summary : "Actualiza la sala (si tienes los permisos)"})
@@ -62,6 +48,20 @@ export class SalaController {
     else{
       return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización, usuario no activado");
     }
+  }
+
+  @ApiOperation({summary : "Devuelve todas las salas"})
+  @ApiOkResponse({description:"La sala creada", type:Sala, isArray:true})
+  @Get()
+  async findAll(@Req() request: Request,@Res() res:Response) {
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findAll(request));
+  }
+
+  @ApiOperation({summary : "Obtiene una sala por ID"})
+  @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})
+  @Get(':id')
+  async findOne(@Param('id') id: string,@Res() res:Response) {
+    return res.status(HttpStatus.OK).send(await this.usuarioService.findOne(id));
   }
 
   @ApiOkResponse({description:"La sala (si se ha encontrado)", type:Sala})

@@ -12,16 +12,18 @@ export class SalaService {
     @InjectModel(Sala.name) private readonly usuarioModel: Model<SalaDocument>, 
   ) {}
 
+  getModel(){return this.usuarioModel;}
+
   async create(createBookDto: CreateSalaDto): Promise<Sala> { 
     return this.usuarioModel.create(createBookDto); 
   }
 
   async findAll(request: Request): Promise<Sala[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).populate("Usuarios","_id", "Nombre", "Nivel").lean().exec();
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findOne(id: string): Promise<Sala> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Usuarios","_id", "Nombre", "Nivel").lean().exec(); 
+    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).exec(); 
   }
 
   async update(id: string, updateBookDto: UpdateSalaDto): Promise<Sala> { 
@@ -30,17 +32,12 @@ export class SalaService {
     });
   }
 
-  async remove(id: string) { 
-    return this.usuarioModel.findByIdAndRemove({ _id: id }).lean().exec(); 
+  async remove(id: string): Promise<Sala> { 
+    return this.usuarioModel.findByIdAndRemove({ _id: id }).exec(); 
   }
 
   async findOneByName(id: string): Promise<Sala> { 
-    return this.usuarioModel.findOne({ Nombre: id }).setOptions({sanitizeFilter : true}).populate("Usuarios","_id", "Nombre", "Nivel").lean().exec(); 
+    return this.usuarioModel.findOne({ Nombre: id }).setOptions({sanitizeFilter : true}).exec(); 
   }
 
-  async updatebyName(id: string, updateBookDto: UpdateSalaDto): Promise<Sala> { 
-    return this.usuarioModel.findOneAndUpdate({ Nombre: id }, updateBookDto, { 
-      new: true, 
-    });
-  }
 }

@@ -4,7 +4,6 @@ import { UsuarioService } from './usuario.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Usuario, UsuarioSchema } from './schemas/usuario.schema';
 import { PoulesModule } from '../poules/poules.module';
-import { check } from 'prettier';
 import { HttpStatus } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';

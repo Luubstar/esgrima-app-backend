@@ -9,8 +9,7 @@ export class Sala {
   Nombre: string;
 
   @Prop({type:[{type:Types.ObjectId, ref:Usuario.name}]}) 
-  Usuarios: Usuario[];
+  Usuarios: [{type:Types.ObjectId, ref:"Usuario"}];
 }
 
 export const SalaSchema = SchemaFactory.createForClass(Sala).index({Nombre: 1}, {unique:true});
-model("Sala", SalaSchema);
