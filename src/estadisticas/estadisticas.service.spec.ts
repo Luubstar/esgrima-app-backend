@@ -13,6 +13,7 @@ import { UsuarioService } from '../usuarios/usuario.service';
 const httpMocks = require('node-mocks-http');
 
 describe('EstadisticasService', () => {
+  jest.setTimeout(20000)
   let service: EstadisticasService;
   let uSer : UsuarioService;
 

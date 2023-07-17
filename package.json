@@ -82,7 +82,7 @@
     "coveragePathIgnorePatterns": [
       ".module.ts",
       ".dto.ts",
-      "filter.ts",".js", "d.ts", "spec.ts"
+      "filter.ts",".js", "d.ts", "spec.ts","main.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

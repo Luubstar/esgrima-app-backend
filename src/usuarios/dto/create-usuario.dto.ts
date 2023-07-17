@@ -16,4 +16,8 @@ export class CreateUsuarioDto {
 
   @ApiProperty({ default: "SAJI" })
   Sala: string;
+
+  @ApiProperty({ default: "Tirador" })
+  Nivel: string;
+  
 }

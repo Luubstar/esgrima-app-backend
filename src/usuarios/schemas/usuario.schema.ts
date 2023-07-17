@@ -28,7 +28,7 @@ export class Usuario {
   @Prop({default:Date.now})
   Creado: Date;
 
-  @Prop({type:[{type:Types.ObjectId, ref:Poule.name}]}) 
+  @Prop({type:[{type:Types.ObjectId, ref:Poule.name}],default:[] }) 
   Poules: [{type:Types.ObjectId, ref:"Poules"}]
 
   @Prop({default: ""})

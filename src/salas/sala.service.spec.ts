@@ -8,6 +8,7 @@ import { CreateSalaDto } from './dto/create-sala.dto';
 const httpMocks = require('node-mocks-http');
 
 describe('SalaService', () => {
+  jest.setTimeout(20000)
   let service: SalaService;
 
   beforeEach(async () => {

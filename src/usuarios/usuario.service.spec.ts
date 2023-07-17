@@ -17,6 +17,7 @@ describe('UsuarioService',  () => {
   let pservice : PoulesService;
 
   beforeAll(async () => {
+    jest.setTimeout(20000)
     const module: TestingModule = await Test.createTestingModule({
       imports: [MongooseModule.forRoot("mongodb+srv://Admin:LuubStar1@mainserver.r4fjvrb.mongodb.net/Tests"),       
       MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema}]), PoulesModule],

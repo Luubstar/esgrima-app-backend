@@ -7,8 +7,6 @@ import { Model } from 'mongoose';
 import {Request, Response} from "express";
 import { Cron } from '@nestjs/schedule';
 
-
-
 const adminrole :string = "Admin";
 const entrenadorrole: string = "Entrenador";
 
@@ -23,8 +21,10 @@ export class UsuarioService {
   public async GetIfLoged(correo : string, clave :string,@Res() res:Response){
     if (await this.checkIfExists(correo,clave)){
       if (await this.checkIfAuth(correo,clave))
-      {  let usuario = await this.findByMail(correo);
-        return usuario["_id"].toString();} 
+      {  
+        let usuario = await this.findByMail(correo);
+        return usuario["_id"].toString();
+      } 
       else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}
     } 
     else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no encontrada");}
@@ -69,27 +69,27 @@ export class UsuarioService {
   }
 
   async findAll() : Promise<Usuario[]>{ 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]);
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true});
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec(); 
+    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).exec(); 
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec(); 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).exec(); 
     return usuario;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules",["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]).exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 

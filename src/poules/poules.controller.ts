@@ -75,9 +75,9 @@ export class PoulesController {
   @Post("estado/:correo/:clave/:pouleid")
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @UseFilters(MongoExceptionFilter)
-  async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
+  async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string, idU:string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
     var poule = await this.findOne(idpoule,res);
-    if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idpoule)) || this.usuario.checkIfAdmin(correo,clave)){
+    if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idU)) || await this.usuario.checkIfAdmin(correo,clave)){
       return res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
     }
     return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
