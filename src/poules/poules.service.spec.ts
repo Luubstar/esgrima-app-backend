@@ -13,6 +13,7 @@ import { changeValoresDto } from './dto/change-valores.dto';
 import { Types } from 'mongoose';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
+import { changeEstadoDto } from './dto/change-estado.dto';
 
 const httpMocks = require('node-mocks-http');
 
@@ -96,7 +97,24 @@ describe('PoulesService', () => {
     });
 
     it("should set state (NOT IMPLEMENTED)", async() => {
-      expect(true).toBe(true)
+      var res = httpMocks.createResponse();
+      let estado = new changeEstadoDto();
+      estado["Estado"] = 1;
+      service.setEstado(createPoule["_id"], estado, res);
+      expect(res.statusCode).toBe(HttpStatus.OK);
+
+      var res = httpMocks.createResponse();
+      estado["Estado"] = 2;
+      service.setEstado(createPoule["_id"], estado, res);
+      expect(res.statusCode).toBe(HttpStatus.OK);
+
+
+
+      let testpoule = (await service.create(Bdoc));
+      var res = httpMocks.createResponse();
+      estado["Estado"] = 0;
+      service.setEstado(testpoule["_id"], estado, res);
+      expect(res.statusCode).toBe(HttpStatus.OK);
     });
 
     it("should get dif", async() => {

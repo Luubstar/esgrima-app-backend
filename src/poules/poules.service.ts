@@ -43,18 +43,24 @@ export class PoulesService {
   }
 
 
-  async setEstado(idpoule: string, estado: changeEstadoDto,@Res() res:Response): Promise<Poule> { 
-    if (estado["Estado"] == 1){return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});}
+  async setEstado(idpoule: string, estado: changeEstadoDto,@Res() res:Response) : Promise<Poule>{ 
+    if (estado["Estado"] == 1){
+      res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
+      this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});}
     else if (estado["Estado"] <= 0){
       var poule = await this.findOne(idpoule);
       var Tiradores = poule["Tiradores"]
       this.remove(idpoule);
       Tiradores.forEach(element => {this.usuario.removePoule(element, idpoule);});
-      }
+      res.status(HttpStatus.OK).send("Poule Eliminada"); 
+      return this.remove(idpoule);
+    }
     else if (estado["Estado"] == 2){
       //Codigo para calcular vencedores
       this.setVencedores(idpoule, null);
       //Codigo para crear/actualizar estadísticas
+      res.status(HttpStatus.OK).send("Poule actualizada");
+      return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
     }
 
   }
