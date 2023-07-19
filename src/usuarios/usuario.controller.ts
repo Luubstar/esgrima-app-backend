@@ -64,8 +64,8 @@ export class UsuarioController {
   @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
   async create(@Body() createUsuarioDto: CreateUsuarioDto,@Res() res:Response) {
-      let correo = createUsuarioDto["Correo"];
       let usuario = await this.usuarioService.create(createUsuarioDto);
+      let correo = usuario["Correo"];
       let mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para actilet tu cuenta, debes entrar en este enlace\n"+
       "https://esgrimapp-backend.fly.dev/usuarios/actilet/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
       " mandando un correo a nbaronariera@gmail.com";
