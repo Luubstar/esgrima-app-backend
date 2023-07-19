@@ -9,6 +9,8 @@ import { UsuarioService} from '../usuarios/usuario.service';
 import { changeEstadoDto } from './dto/change-estado.dto';
 import { changePouleVencedores } from './dto/change-vencedores.dto';
 import { changeValoresDto } from './dto/change-valores.dto';
+import { EstadisticasService } from '../estadisticas/estadisticas.service';
+import { CreateEstadisticaDto } from '../estadisticas/dto/create-estadistica.dto';
 
 @Injectable()
 export class PoulesService {
@@ -17,6 +19,10 @@ export class PoulesService {
   ) {}
   @Inject(UsuarioService)
   private readonly usuario;
+
+  @Inject(EstadisticasService)
+  private readonly estadistica;
+
 
   getModel(){return this.usuarioModel;}
 
@@ -116,11 +122,19 @@ export class PoulesService {
         ganadores[i] = Tiradores[index];
       }
 
-      this.setVencedores(idpoule, null);
+      let vencedores = new changePouleVencedores();
+      vencedores.Vencedores = ganadores;
+      this.setVencedores(idpoule, vencedores);
       
-      Tiradores.forEach(tirador => {
-        
-      });
+      for(let t = 0; t < Tiradores.length; t++){
+        let dto = new CreateEstadisticaDto();
+        dto.Victorias = victorias[t];
+        dto.Derrotas = derrotas[t];
+        dto.TocadosDados = tocadosD[t];
+        dto.TocadosRecibidos = tocadosR[t];
+        await this.estadistica.create(dto, Tiradores[t], res);
+      }
+      
       res.status(HttpStatus.OK).send("Poule actualizada");
       return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
     }

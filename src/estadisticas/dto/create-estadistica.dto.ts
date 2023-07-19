@@ -11,17 +11,17 @@ export class CreateEstadisticaDto {
   Año : number
 
   @ApiProperty({default : 0, example: 0})
-  readonly Victorias : number
+  Victorias : number
 
   @ApiProperty({default : 0, example: 0})
-  readonly Derrotas : number
+  Derrotas : number
 
   @ApiProperty({default : 0, example: 0})
-  readonly TocadosDados : number
+  TocadosDados : number
 
   @ApiProperty({default : 0, example: 0})
-  readonly TocadosRecividos : number
+  TocadosRecibidos : number
 
   @ApiProperty({default : 0, example: 0})
-  readonly PoulesTotales : number
+  PoulesTotales : number
 }

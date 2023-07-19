@@ -8,6 +8,7 @@ import { UsuarioModule } from '../usuarios/usuario.module';
   MongooseModule.forFeature([{ name: Estadisticas.name, schema: EstadisticaSchema}]), UsuarioModule
 ],
   controllers: [EstadisticasController],
-  providers: [EstadisticasService]
+  providers: [EstadisticasService],
+  exports: [EstadisticasService]
 })
 export class EstadisticasModule {}

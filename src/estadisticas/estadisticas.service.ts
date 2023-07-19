@@ -25,9 +25,15 @@ export class EstadisticasService {
         res.status(HttpStatus.ACCEPTED).send();
         return this.estadisticaModel.create(createEstadisticaDto)
       }
-      else{res.status(HttpStatus.CONFLICT).send("Ya existen estadísticas con ese mes y año para el usuario");}
+      else{
+        res.status(HttpStatus.CONFLICT).send("Ya existen estadísticas con ese mes y año para el usuario");
+        await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
+      } 
     }
-    else {res.status(HttpStatus.CONFLICT).send("Usuario no indicado");}
+    else {
+      res.status(HttpStatus.CONFLICT).send("Usuario no indicado");
+      await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
+    }
   }
 
   async findAll(request: Request): Promise<Estadisticas[]> { 

@@ -24,7 +24,7 @@ export class Estadisticas {
   TocadosDados : number
 
   @Prop({default : 0})
-  TocadosRecividos : number
+  TocadosRecibidos : number
 
   @Prop({default : 0})
   PoulesTotales : number
