@@ -39,7 +39,7 @@ describe('PoulesController', () => {
   });
 
   it ("should create one", async () => {
-    var res = httpMocks.createResponse();
+    let res = httpMocks.createResponse();
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false); 
     await controller.create(new CreatePouleDto(), "a", "d", res);
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -52,7 +52,7 @@ describe('PoulesController', () => {
   })
 
   it ("should update one", async () => {
-    var res = httpMocks.createResponse();
+    let res = httpMocks.createResponse();
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(false); 
     await controller.update("", "a", "d", res, new UpdatePouleDto());
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -65,7 +65,7 @@ describe('PoulesController', () => {
   })
 
   it ("should change state", async () => {
-    var res = httpMocks.createResponse();
+    let res = httpMocks.createResponse();
     jest.spyOn(service,'findOne').mockResolvedValue(new Poule()); 
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false);
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(false); 
@@ -80,7 +80,7 @@ describe('PoulesController', () => {
   })
 
   it ("should change poule values", async () => {
-    var res = httpMocks.createResponse();
+    let res = httpMocks.createResponse();
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false); 
     await controller.changePoulevalores("", "a", "d", new changeValoresDto(), res);
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -93,7 +93,7 @@ describe('PoulesController', () => {
   })
 
   it ("should get poule values", async () => {
-    var res = httpMocks.createResponse();
+    let res = httpMocks.createResponse();
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false); 
     await controller.getPoulevalores("", "a", "d", res);
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -107,8 +107,8 @@ describe('PoulesController', () => {
 
   describe("Find actions", () =>{
     it ("should find all", async () => {
-      var res = httpMocks.createResponse();
-      var req = httpMocks.createRequest();
+      let res = httpMocks.createResponse();
+      let req = httpMocks.createRequest();
       jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false); 
       await controller.findAll(req, "", "", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -121,7 +121,7 @@ describe('PoulesController', () => {
     })
 
     it ("should find one by id", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'findOne').mockResolvedValue(new Poule()); 
 
       await controller.findOne("", res);

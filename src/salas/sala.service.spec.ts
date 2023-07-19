@@ -38,7 +38,7 @@ describe('SalaService', () => {
     });
   
     afterAll(async () => {
-      var req = httpMocks.createRequest();
+      let req = httpMocks.createRequest();
       await service.remove(createdSala["_id"]);
       expect((await service.findAll(req)).length).toBe(0);
     });
@@ -53,7 +53,7 @@ describe('SalaService', () => {
     })
 
     it("should find all", async() => {
-      var req = httpMocks.createRequest();
+      let req = httpMocks.createRequest();
       expect((await service.findAll(req)).length).toBe(1);
     });
 

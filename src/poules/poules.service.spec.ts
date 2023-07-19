@@ -45,17 +45,15 @@ describe('PoulesService', () => {
 
   let Adoc = new CreatePouleDto()
   Adoc["Nombre"] = "A";
-  Adoc["Valores"] = [1,1]
-  Adoc["Tiradores"] = ["",""]
+  Adoc["Valores"] = [1,2,1,2,1,2];
+  Adoc["Tiradores"] = ["","",""]
   let Bdoc = new CreatePouleDto()
   Bdoc["Nombre"] = "B";
-  Bdoc["Valores"] = [1,1]
+  Bdoc["Valores"] = [1,2,1,2,1,2];
 
   let Cdoc = new CreatePouleDto();
   Cdoc["Nombre"] = "C";
-  Cdoc["Valores"] = [1,1];
-
-  let Ddoc = new UpdatePouleDto();
+  Cdoc["Valores"] = [1,2,1,2,1,2];
 
   let wD = new changePouleVencedores();
   wD["Vencedores"] = ["A"];
@@ -72,7 +70,7 @@ describe('PoulesService', () => {
     });
   
     afterAll(async () => {
-      var req = httpMocks.createRequest();
+      let req = httpMocks.createRequest();
       await service.remove(createPoule["_id"]);
       expect((await service.findAll(req)).length).toBe(0);
       service.getModel().deleteMany({});
@@ -97,13 +95,13 @@ describe('PoulesService', () => {
     });
 
     it("should set state (NOT IMPLEMENTED)", async() => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       let estado = new changeEstadoDto();
       estado["Estado"] = 1;
       service.setEstado(createPoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
-      var res = httpMocks.createResponse();
+      res = httpMocks.createResponse();
       estado["Estado"] = 2;
       service.setEstado(createPoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
@@ -111,14 +109,15 @@ describe('PoulesService', () => {
 
 
       let testpoule = (await service.create(Bdoc));
-      var res = httpMocks.createResponse();
+      res = httpMocks.createResponse();
       estado["Estado"] = 0;
       service.setEstado(testpoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
+      await service.remove(testpoule["_id"]);
     });
 
     it("should get dif", async() => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       await service.dif([1,2], [1,2], res)
       expect(res.statusCode).toBe(HttpStatus.OK);
 
@@ -131,12 +130,12 @@ describe('PoulesService', () => {
     it("should set values", async() =>{
       let Cp = await service.create(Cdoc);
 
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       let Udoc = new CreateUsuarioDto();
       Udoc["Correo"] = "A";
       Udoc["Clave"] = "A";
       let U = await uSer.create(Udoc);  
-      U = await uSer.activarUsuario(U["_id"]);
+      U = await uSer.actiletUsuario(U["_id"]);
       
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
       
@@ -171,7 +170,7 @@ describe('PoulesService', () => {
 
     describe("Buscar", () => {
       it("should find all", async() => {
-        var req = httpMocks.createRequest();
+        let req = httpMocks.createRequest();
         expect((await service.findAll(req)).length).toBeGreaterThan(0);
       });
         it("should find one", async() => {

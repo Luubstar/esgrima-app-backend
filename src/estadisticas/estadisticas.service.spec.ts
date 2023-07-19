@@ -45,12 +45,12 @@ describe('EstadisticasService', () => {
       service.getModel().deleteMany({});
       uSer.getModel().deleteMany({});
       
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       createdEst = (await service.create(new CreateEstadisticaDto(), "a", res));
     });
   
     afterAll(async () => {
-      var req = httpMocks.createRequest();
+      let req = httpMocks.createRequest();
       await service.remove(createdEst["_id"]);
       expect((await service.findAll(req)).length).toBe(0);
       service.getModel().deleteMany({});
@@ -58,7 +58,7 @@ describe('EstadisticasService', () => {
     });
 
     it("should create and check", async() => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       await service.create(new CreateEstadisticaDto(), "", res);
       expect(res.statusCode).toBe(HttpStatus.CONFLICT);
 
@@ -78,7 +78,7 @@ describe('EstadisticasService', () => {
 
     describe("Buscar", () => {
       it("should find all", async() => {
-        var req = httpMocks.createRequest();
+        let req = httpMocks.createRequest();
         expect((await service.findAll(req)).length).toBeGreaterThan(0);
       });
   

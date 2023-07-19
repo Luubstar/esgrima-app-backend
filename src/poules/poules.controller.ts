@@ -76,7 +76,7 @@ export class PoulesController {
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @UseFilters(MongoExceptionFilter)
   async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string, idU:string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
-    var poule = await this.findOne(idpoule,res);
+    let poule = await this.findOne(idpoule,res);
     if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idU)) || await this.usuario.checkIfAdmin(correo,clave)){
       return res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
     }

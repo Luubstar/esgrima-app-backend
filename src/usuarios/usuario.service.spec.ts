@@ -36,12 +36,12 @@ describe('UsuarioService',  () => {
   
   describe("User actions", () => {
 
-    var Adoc = new CreateUsuarioDto();
+    let Adoc = new CreateUsuarioDto();
     Adoc.Nombre = "A";
     Adoc.Correo = "A";
     Adoc.Clave = "A";
 
-    var Bdoc = new UpdateUsuarioDto();
+    let Bdoc = new UpdateUsuarioDto();
     Bdoc.Nombre = "B";
     Bdoc.Correo = "B";
     Bdoc.Clave = "B";
@@ -68,7 +68,7 @@ describe('UsuarioService',  () => {
     });
 
     it("should find the user",async () => {
-      var req = httpMocks.createRequest();
+      let req = httpMocks.createRequest();
       expect(createdUser).toBeDefined();
       expect((await service.findAll()).length).toBe(0);
       expect((await service.findAllbtn(req)).length).toBe(1);
@@ -80,7 +80,7 @@ describe('UsuarioService',  () => {
 
 
     it ("should fail all the checks", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       await service.GetIfLoged("Z","Z", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
 
@@ -93,13 +93,13 @@ describe('UsuarioService',  () => {
       
       expect((await service.findActivado(createdUser["Correo"], createdUser["Clave"]))).toBe(false);
       expect((await service.findAllUnactive()).length).toBe(1);
-      await service.activarUsuario(createdUser["_id"]);
+      await service.actiletUsuario(createdUser["_id"]);
       expect((await service.findActivado(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
       expect((await service.checkIfAuth(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
     })
   
     it ("should check the user values and activation", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       expect((await service.checkIfExists(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
       expect((await service.checkIfAdmin(createdUser["Correo"], createdUser["Clave"]))).toBe(false);
       expect((await service.GetIfLoged(createdUser["Correo"], createdUser["Clave"], res))).toBe(createdUser["_id"].toString());
@@ -108,8 +108,8 @@ describe('UsuarioService',  () => {
 
 
     it ("should add and remove a poule", async () => {
-      var pdoc = new CreatePouleDto()
-      var poule = await pservice.create(pdoc);
+      let pdoc = new CreatePouleDto()
+      let poule = await pservice.create(pdoc);
       createdUser = (await service.addPoule(createdUser["_id"], poule["_id"]))
       expect(createdUser["Poules"].length).toBe(1);
       createdUser =  (await service.removePoule(createdUser["_id"], poule["_id"]));

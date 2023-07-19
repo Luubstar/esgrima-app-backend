@@ -32,8 +32,8 @@ describe('EstadisticasController', () => {
 
   describe("Find actions", () =>{
     it ("should find all", async () => {
-      var res = httpMocks.createResponse();
-      var req = httpMocks.createRequest();
+      let res = httpMocks.createResponse();
+      let req = httpMocks.createRequest();
       jest.spyOn(service,'findAll').mockResolvedValue(new Estadisticas()[1]); 
 
       await controller.findAll(req,res);
@@ -41,7 +41,7 @@ describe('EstadisticasController', () => {
     })
 
     it ("should find one by id", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'findOne').mockResolvedValue(new Estadisticas()); 
 
       await controller.findOne("", res);
@@ -49,7 +49,7 @@ describe('EstadisticasController', () => {
     })
 
     it ("should find one by user data", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'getFromUser').mockResolvedValue(new Estadisticas()); 
 
       await controller.GetByUser("",0,0, res);

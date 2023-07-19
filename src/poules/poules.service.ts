@@ -48,17 +48,45 @@ export class PoulesService {
       res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
       this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});}
     else if (estado["Estado"] <= 0){
-      var poule = await this.findOne(idpoule);
-      var Tiradores = poule["Tiradores"]
+      let poule = await this.findOne(idpoule);
+      let Tiradores = poule["Tiradores"]
       this.remove(idpoule);
       Tiradores.forEach(element => {this.usuario.removePoule(element, idpoule);});
       res.status(HttpStatus.OK).send("Poule Eliminada"); 
       return this.remove(idpoule);
     }
     else if (estado["Estado"] == 2){
-      //Codigo para calcular vencedores
+      let poule = await this.findOne(idpoule);
+      let valores = poule["Valores"];
+      let Tiradores = poule["Tiradores"]
+      let victorias = [];
+      let derrotas = [];
+      let tocadosD = [];
+      let tocadosR = [];
+
+      for( let i = 0; i < Tiradores.length; i++){
+        let suma = 0;
+        for (let count = 0; count < Tiradores.length-1; count++){
+          suma += valores[(i * (Tiradores.length-1)) + count];}
+        tocadosD[i] = suma;
+      }
+
+      for( let x = 0; x < Tiradores.length; x++){
+        let suma = 0;
+        for (let y = 0; y < Tiradores.length; y++){
+          if (x !== y){
+            suma += valores[y * (Tiradores.length-1) + x];
+          }
+        }
+        tocadosR[x] = suma;
+      }
+      
+      console.log(valores,tocadosD,tocadosR, Tiradores);
       this.setVencedores(idpoule, null);
-      //Codigo para crear/actualizar estadísticas
+      
+      Tiradores.forEach(tirador => {
+
+      });
       res.status(HttpStatus.OK).send("Poule actualizada");
       return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
     }
@@ -70,8 +98,8 @@ export class PoulesService {
   }
 
   async setValores(idpoule: string, correo: string, clave:string, estado: changeValoresDto,@Res() res:Response) { 
-    var poule = await this.findOne(idpoule);
-    var idUsuario = await this.usuario.GetIfLoged(correo,clave,res);
+    let poule = await this.findOne(idpoule);
+    let idUsuario = await this.usuario.GetIfLoged(correo,clave,res);
     let u = await (this.usuario.findById(idUsuario));
     if(res.statusCode == HttpStatus.OK && (await this.usuario.checkIfAdmin(correo, clave) ||u.Poules.includes(new Types.ObjectId(idpoule)))){
       if(await this.usuario.checkIfAdmin(correo, clave) ||  idUsuario == poule["Creador"]){
@@ -79,13 +107,13 @@ export class PoulesService {
         return res.status(HttpStatus.OK).send("Datos actualizados como administrador");
       }
       else{
-        var newVal = estado["Valores"];
-        var oldVal = poule["Valores"];
+        let newVal = estado["Valores"];
+        let oldVal = poule["Valores"];
         let dif = await this.dif(oldVal, newVal, res);
 
-        var pos = -1
-        var step = poule["Tiradores"].length;
-        for(var i = 0; i < dif.length; i++){
+        let pos = -1
+        let step = poule["Tiradores"].length;
+        for(let i = 0; i < dif.length; i++){
           if (i%step == 0){pos += 1}
           if(dif[i] != 0 && pos != poule["Tiradores"].indexOf(idUsuario)){return res.status(HttpStatus.UNAUTHORIZED).send(" No estás autorizado para hacer este cambio...Es el valor de otro usuario 🧐")}
         }
@@ -104,9 +132,9 @@ export class PoulesService {
 
   async dif (oldVal:number[], newVal:number[],@Res() res:Response) : Promise<number[]>{
     try{
-    var difVal = [];
+    let difVal = [];
     if (oldVal.length != newVal.length){ throw new HttpException("Error con los tamaños", HttpStatus.BAD_REQUEST);}
-    for(var i = 0; i < oldVal.length; i++){difVal[i] = (oldVal[i] - newVal[i]);}
+    for(let i = 0; i < oldVal.length; i++){difVal[i] = (oldVal[i] - newVal[i]);}
     res.status(HttpStatus.OK).send();
     return difVal}
     catch{

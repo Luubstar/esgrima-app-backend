@@ -15,7 +15,7 @@ export class EstadisticasService {
   
   public getModel(){return this.estadisticaModel;}
   async create(createEstadisticaDto: CreateEstadisticaDto, Usuario:string, @Res() res: Response){
-    var date = new Date();
+    let date = new Date();
     if (Usuario.length > 0)
     {
       if (!(await this.checkIfMultiple(Usuario.toString(), date.getMonth(), date.getFullYear()))){

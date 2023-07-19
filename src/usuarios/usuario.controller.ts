@@ -8,7 +8,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Usuario } from './schemas/usuario.schema';
 import { MongoExceptionFilter } from '../mongo-exception.filter';
 
-var mailer = require("nodemailer");
+let mailer = require("nodemailer");
 
 
 let transporter = mailer.createTransport({
@@ -34,7 +34,7 @@ export class UsuarioController {
   @Get("login/:correo/:clave")
   @UseFilters(MongoExceptionFilter)
   public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string,@Res() res:Response) {
-      var result = await this.usuarioService.GetIfLoged(correo, clave,res)
+      let result = await this.usuarioService.GetIfLoged(correo, clave,res)
       if (result.length > 0){
         return res.status(HttpStatus.ACCEPTED).send(result);
       }
@@ -50,10 +50,10 @@ export class UsuarioController {
   }
 
   @ApiOperation({summary: "Activa al usuario con la id indicada"})
-  @Get("activar/:id")
+  @Get("actilet/:id")
   @UseFilters(MongoExceptionFilter)
-  async activarbyId(@Param('id') id: string) {
-    await this.usuarioService.activarUsuario(id);
+  async actiletbyId(@Param('id') id: string) {
+    await this.usuarioService.actiletUsuario(id);
     return "Inicio de sesión autorizado. Ya puedes usar la aplicación";
   } 
 
@@ -64,12 +64,12 @@ export class UsuarioController {
   @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
   async create(@Body() createUsuarioDto: CreateUsuarioDto,@Res() res:Response) {
-      var correo = createUsuarioDto["Correo"];
+      let correo = createUsuarioDto["Correo"];
       let usuario = await this.usuarioService.create(createUsuarioDto);
-      var mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para activar tu cuenta, debes entrar en este enlace\n"+
-      "https://esgrimapp-backend.fly.dev/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
+      let mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para actilet tu cuenta, debes entrar en este enlace\n"+
+      "https://esgrimapp-backend.fly.dev/usuarios/actilet/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
       " mandando un correo a nbaronariera@gmail.com";
-      var mailoptions = {
+      let mailoptions = {
         from: '"Usuario registrado correctamente" <noreply@esgrimapp.com>',
         to: correo,
         subject: 'Activa tu cuenta',

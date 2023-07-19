@@ -33,7 +33,7 @@ describe('SalaController', () => {
 
   describe("Pruebas del controlador", () => {
     it ("should create a new sala", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(uService,'checkIfAdmin').mockResolvedValue(false); 
       await controller.create("a", "b", new CreateSalaDto(), res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -46,7 +46,7 @@ describe('SalaController', () => {
     });
 
     it ("should update the sala", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(uService,'checkIfAdmin').mockResolvedValue(false); 
       await controller.update("a", "b", "", new CreateSalaDto(), res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -59,7 +59,7 @@ describe('SalaController', () => {
     });
 
     it ("should remove the sala", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(uService,'checkIfAdmin').mockResolvedValue(false); 
       await controller.remove("a", "b", "", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -73,8 +73,8 @@ describe('SalaController', () => {
     
     describe("Finding", () => {
       it("should find all", async () => {
-        var res = httpMocks.createResponse();
-        var req = httpMocks.createRequest();
+        let res = httpMocks.createResponse();
+        let req = httpMocks.createRequest();
         jest.spyOn(service,'findAll').mockResolvedValue(new Sala()[1]); 
 
         await controller.findAll(req,res);
@@ -82,8 +82,8 @@ describe('SalaController', () => {
       })
 
       it("should find one", async () => {
-        var res = httpMocks.createResponse();
-        var req = httpMocks.createRequest();
+        let res = httpMocks.createResponse();
+        let req = httpMocks.createRequest();
         jest.spyOn(service,'findOne').mockResolvedValue(new Sala()); 
 
         await controller.findOne(req,res);
@@ -91,7 +91,7 @@ describe('SalaController', () => {
       })
 
       it("should find one by name", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'findOneByName').mockResolvedValue(new Sala()); 
 
         await controller.findOneByName("",res);

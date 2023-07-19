@@ -31,7 +31,7 @@ describe('UsuarioController', () => {
   describe("Pruebas del controlador", () => {
 
     it ("should know if user is logged", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       let result = "";
       jest.spyOn(service,'GetIfLoged').mockResolvedValue(result); 
       await controller.checkIfLogged("a", "b", res);
@@ -46,7 +46,7 @@ describe('UsuarioController', () => {
     });
 
     it ("should return user level", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       let result = "tirador";
       jest.spyOn(service,'findNivel').mockResolvedValue(result); 
 
@@ -56,15 +56,15 @@ describe('UsuarioController', () => {
 
     it ("should return activation confim", async () => {
 
-      jest.spyOn(service,'activarUsuario').mockResolvedValue(new Usuario()); 
-      expect((await controller.activarbyId("")).length).toBeGreaterThan(1);
+      jest.spyOn(service,'actiletUsuario').mockResolvedValue(new Usuario()); 
+      expect((await controller.actiletbyId("")).length).toBeGreaterThan(1);
     })
 
     it ("should send the activation email", async () => {
 
       let transporter = controller.getTransporter();
       let result = "";
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'create').mockResolvedValue(new Usuario()); 
       jest.spyOn(service,'remove').mockResolvedValue(new Usuario())
 
@@ -80,7 +80,7 @@ describe('UsuarioController', () => {
     })
 
     it ("should update user", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'checkIfAdmin').mockResolvedValue(false); 
       await controller.update("a", "b", "", new UpdateUsuarioDto(), res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -93,7 +93,7 @@ describe('UsuarioController', () => {
     });
 
     it ("should delete user", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'checkIfAdmin').mockResolvedValue(false); 
       await controller.remove("a", "b", "", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -106,7 +106,7 @@ describe('UsuarioController', () => {
     });
 
     it ("should self-delete user by mail", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'checkIfAuth').mockResolvedValue(false); 
       await controller.removebyMail("a", "d", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -119,7 +119,7 @@ describe('UsuarioController', () => {
     });
 
     it ("should add poule", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'checkIfAuth').mockResolvedValue(false); 
       await controller.addPoule("a", "b", "c", "d", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -132,7 +132,7 @@ describe('UsuarioController', () => {
     });
 
     it ("should remove poule", async () => {
-      var res = httpMocks.createResponse();
+      let res = httpMocks.createResponse();
       jest.spyOn(service,'checkIfAuth').mockResolvedValue(false); 
       await controller.removePoule("a", "b", "c", "d", res);
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -146,7 +146,7 @@ describe('UsuarioController', () => {
 
     describe("Find actions", () =>{
       it ("should find all", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'findAll').mockResolvedValue(new Usuario()[1]); 
 
         await controller.findAll(res);
@@ -154,7 +154,7 @@ describe('UsuarioController', () => {
       })
 
       it ("should find one by id", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'findById').mockResolvedValue(new Usuario()); 
 
         await controller.findOnebyID("", res);
@@ -162,7 +162,7 @@ describe('UsuarioController', () => {
       })
 
       it ("should find one by mail", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'findByMail').mockResolvedValue(new Usuario()); 
 
         await controller.findOneByMail("", res);
@@ -170,7 +170,7 @@ describe('UsuarioController', () => {
       })
 
       it ("should find all by name", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'checkIfAuth').mockResolvedValue(false); 
         await controller.findAllWithName("a", "b", "c", res);
         expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
@@ -183,7 +183,7 @@ describe('UsuarioController', () => {
       })
 
       it ("should find one by sala", async () => {
-        var res = httpMocks.createResponse();
+        let res = httpMocks.createResponse();
         jest.spyOn(service,'findBySala').mockResolvedValue(new Usuario()[1]); 
 
         await controller.findOneBySala("", res);
@@ -191,8 +191,8 @@ describe('UsuarioController', () => {
       })
 
       it ("should find all as buttons", async () => {
-        var res = httpMocks.createResponse();
-        var req = httpMocks.createRequest();
+        let res = httpMocks.createResponse();
+        let req = httpMocks.createRequest();
 
         jest.spyOn(service,'findAllbtn').mockResolvedValue(new Usuario()[1]); 
         jest.spyOn(service,'checkIfAuth').mockResolvedValue(false); 
@@ -200,8 +200,8 @@ describe('UsuarioController', () => {
         expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED);
 
 
-        var res = httpMocks.createResponse();
-        var req = httpMocks.createRequest();
+        let res = httpMocks.createResponse();
+        let req = httpMocks.createRequest();
 
         jest.spyOn(service,'checkIfAuth').mockResolvedValue(true); 
         await controller.findAllbotones(req, "a", "b", res);
