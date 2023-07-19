@@ -50,10 +50,10 @@ export class UsuarioController {
   }
 
   @ApiOperation({summary: "Activa al usuario con la id indicada"})
-  @Get("actilet/:id")
+  @Get("activar/:id")
   @UseFilters(MongoExceptionFilter)
-  async actiletbyId(@Param('id') id: string) {
-    await this.usuarioService.actiletUsuario(id);
+  async activarbyId(@Param('id') id: string) {
+    await this.usuarioService.activarUsuario(id);
     return "Inicio de sesión autorizado. Ya puedes usar la aplicación";
   } 
 

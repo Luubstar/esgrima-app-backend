@@ -56,8 +56,8 @@ describe('UsuarioController', () => {
 
     it ("should return activation confim", async () => {
 
-      jest.spyOn(service,'actiletUsuario').mockResolvedValue(new Usuario()); 
-      expect((await controller.actiletbyId("")).length).toBeGreaterThan(1);
+      jest.spyOn(service,'activarUsuario').mockResolvedValue(new Usuario()); 
+      expect((await controller.activarbyId("")).length).toBeGreaterThan(1);
     })
 
     it ("should send the activation email", async () => {
@@ -200,8 +200,8 @@ describe('UsuarioController', () => {
         expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED);
 
 
-        let res = httpMocks.createResponse();
-        let req = httpMocks.createRequest();
+        res = httpMocks.createResponse();
+        req = httpMocks.createRequest();
 
         jest.spyOn(service,'checkIfAuth').mockResolvedValue(true); 
         await controller.findAllbotones(req, "a", "b", res);

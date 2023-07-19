@@ -93,7 +93,7 @@ describe('UsuarioService',  () => {
       
       expect((await service.findActivado(createdUser["Correo"], createdUser["Clave"]))).toBe(false);
       expect((await service.findAllUnactive()).length).toBe(1);
-      await service.actiletUsuario(createdUser["_id"]);
+      await service.activarUsuario(createdUser["_id"]);
       expect((await service.findActivado(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
       expect((await service.checkIfAuth(createdUser["Correo"], createdUser["Clave"]))).toBe(true);
     })

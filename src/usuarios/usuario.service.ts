@@ -106,7 +106,7 @@ export class UsuarioService {
     return this.usuarioModel.findOneAndRemove({ Correo: id }).exec(); 
   }
 
-  async actiletUsuario(id: string): Promise<Usuario> { 
+  async activarUsuario(id: string): Promise<Usuario> { 
     let usuario = this.usuarioModel.findOneAndUpdate({ _id: id },{"Activado" : true});
     return usuario;
   }
