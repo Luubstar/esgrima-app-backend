@@ -38,7 +38,6 @@ export class UsuarioController {
       if (result.length > 0){
         return res.status(HttpStatus.ACCEPTED).send(result);
       }
-      else{ return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");}
     }
 
   @ApiOperation({summary: "Devuelve el nivel de seguridad del usuario"})
