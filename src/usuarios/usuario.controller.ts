@@ -66,7 +66,7 @@ export class UsuarioController {
   async create(@Param('correo') correo: string, @Body() createUsuarioDto: CreateUsuarioDto,@Res() res:Response) {
       let usuario = await this.usuarioService.create(createUsuarioDto);
       let mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para actilet tu cuenta, debes entrar en este enlace\n"+
-      "https://esgrimapp-backend.fly.dev/usuarios/actilet/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
+      "https://esgrimapp-backend.fly.dev/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
       " mandando un correo a nbaronariera@gmail.com";
       let mailoptions = {
         from: '"Usuario registrado correctamente" <noreply@esgrimapp.com>',
