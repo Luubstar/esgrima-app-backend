@@ -3,9 +3,10 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Usuario, UsuarioDocument } from './schemas/usuario.schema';
-import { Model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import {Request, Response} from "express";
 import { Cron } from '@nestjs/schedule';
+import { PoulesModule } from '../poules/poules.module';
 
 const adminrole :string = "Admin";
 const entrenadorrole: string = "Entrenador";
@@ -64,12 +65,12 @@ export class UsuarioService {
     else{return null;}
   }
 
-  async create(createBookDto: CreateUsuarioDto): Promise<Usuario> { 
+  async create(createBookDto: CreateUsuarioDto): Promise<Usuario> {
     return this.usuarioModel.create(createBookDto); 
   }
 
   async findAll() : Promise<Usuario[]>{ 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true});
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules", "Poules");
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();

@@ -63,29 +63,63 @@ export class PoulesService {
       let derrotas = [];
       let tocadosD = [];
       let tocadosR = [];
+      let valores2D = [];
+      let i = 0;
+
+      for (let x = 0; x < Tiradores.length; x++){
+        let res = [];
+        for(let y = 0; y < Tiradores.length; y++){
+          if(x == y){res[y] = -1;}
+          else{res[y] = valores[i]; i++;}
+        }
+        valores2D[x] = res;
+      }
 
       for( let i = 0; i < Tiradores.length; i++){
         let suma = 0;
         for (let count = 0; count < Tiradores.length-1; count++){
           suma += valores[(i * (Tiradores.length-1)) + count];}
         tocadosD[i] = suma;
+        victorias[i] = 0;
+        derrotas[i] = 0;
       }
 
       for( let x = 0; x < Tiradores.length; x++){
         let suma = 0;
         for (let y = 0; y < Tiradores.length; y++){
-          if (x !== y){
-            suma += valores[y * (Tiradores.length-1) + x];
+          if (valores2D[y][x] != -1){
+            suma += valores2D[y][x];}}
+        tocadosR[x] = suma;}
+
+      for( let Usuario = 0; Usuario < Tiradores.length; Usuario++){
+        for(let desp = 0; desp < Tiradores.length; desp++){
+          if (desp != Usuario && valores2D[Usuario][desp] != -1 && valores2D[desp][Usuario] != -1){
+            if(valores2D[Usuario][desp] > valores2D[desp][Usuario]){victorias[Usuario]++;}
+            else if(valores2D[Usuario][desp] <= valores2D[desp][Usuario]){derrotas[Usuario]++;}
+          }}}
+      
+      let lowest = 3 < victorias.length ? 3 : victorias.length;
+      let ganadores = []
+      for(let i = 0; i < lowest; i++ ){
+        let high = 0;
+        let index = 0;
+
+        for(let valor; valor < victorias.length; valor++){
+          if( high < victorias[valor]){high = victorias[valor]; index = valor;}
+          else if (high == victorias[valor]){
+            if(derrotas[valor] < derrotas[index]){index = valor;}
+            else{if(tocadosD[valor]/tocadosR[valor] > tocadosD[index]/tocadosR[index]){index = valor;}}
           }
         }
-        tocadosR[x] = suma;
+        victorias[index] = 0;
+        derrotas[index] = 0;
+        ganadores[i] = Tiradores[index];
       }
-      
-      console.log(valores,tocadosD,tocadosR, Tiradores);
+
       this.setVencedores(idpoule, null);
       
       Tiradores.forEach(tirador => {
-
+        
       });
       res.status(HttpStatus.OK).send("Poule actualizada");
       return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});

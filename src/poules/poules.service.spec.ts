@@ -135,7 +135,7 @@ describe('PoulesService', () => {
       Udoc["Correo"] = "A";
       Udoc["Clave"] = "A";
       let U = await uSer.create(Udoc);  
-      U = await uSer.actiletUsuario(U["_id"]);
+      U = await uSer.activarUsuario(U["_id"]);
       
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
       

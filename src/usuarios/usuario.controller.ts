@@ -35,7 +35,7 @@ export class UsuarioController {
   @UseFilters(MongoExceptionFilter)
   public async checkIfLogged(@Param("correo") correo:string, @Param("clave") clave:string,@Res() res:Response) {
       let result = await this.usuarioService.GetIfLoged(correo, clave,res)
-      if (result.length > 0){
+      if (typeof result == "string"){
         return res.status(HttpStatus.ACCEPTED).send(result);
       }
     }
@@ -63,7 +63,9 @@ export class UsuarioController {
   @Throttle(1,180)
   @UseFilters(MongoExceptionFilter)
   async create(@Param('correo') correo: string, @Body() createUsuarioDto: CreateUsuarioDto,@Res() res:Response) {
-      let usuario = await this.usuarioService.create(createUsuarioDto);
+    let usuario = await this.usuarioService.create(createUsuarioDto);
+    if(usuario == null){res.status(HttpStatus.BAD_REQUEST).send("Usuario repetido");}
+    else{
       let mensaje = "Muchas gracias por registrarte en nuestra aplicación. Para actilet tu cuenta, debes entrar en este enlace\n"+
       "https://esgrimapp-backend.fly.dev/usuarios/activar/"+ usuario["_id"] +"\n Ante cualquier duda o error, por favor, ponte en contacto con nosotros"+
       " mandando un correo a nbaronariera@gmail.com";
@@ -82,6 +84,7 @@ export class UsuarioController {
         await this.usuarioService.remove(usuario["_id"]);
         return res.status(HttpStatus.SERVICE_UNAVAILABLE).send("Correo no encontrado");
       }
+    }
   }
 
   @ApiOperation({summary:"Devuelve todos los usuarios"})

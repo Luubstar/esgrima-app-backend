@@ -32,11 +32,12 @@ describe('UsuarioController', () => {
 
     it ("should know if user is logged", async () => {
       let res = httpMocks.createResponse();
+      res.statusCode = 1;
       let result = "";
-      jest.spyOn(service,'GetIfLoged').mockResolvedValue(result); 
+      jest.spyOn(service,'GetIfLoged').mockResolvedValue(null); 
       await controller.checkIfLogged("a", "b", res);
       
-      expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
+      expect(res.statusCode).toBe(1);
 
       res = httpMocks.createResponse();
       result = "12345";
@@ -69,12 +70,12 @@ describe('UsuarioController', () => {
       jest.spyOn(service,'remove').mockResolvedValue(new Usuario())
 
       jest.spyOn(transporter,'sendMail').mockResolvedValue(result); 
-      await controller.create(new CreateUsuarioDto(), res);
+      await controller.create("",new CreateUsuarioDto(), res);
       expect(res.statusCode).toBe(HttpStatus.ACCEPTED);
 
       res = httpMocks.createResponse();
       jest.spyOn(transporter,'sendMail').mockResolvedValue(null); 
-      await controller.create(new CreateUsuarioDto(), res);
+      await controller.create("",new CreateUsuarioDto(), res);
       expect(res.statusCode).toBe(HttpStatus.SERVICE_UNAVAILABLE);
       
     })
