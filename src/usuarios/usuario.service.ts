@@ -1,4 +1,4 @@
-import { Injectable, Res, HttpStatus } from '@nestjs/common';
+import { Injectable, Res, HttpStatus, UseFilters } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { Model, model } from 'mongoose';
 import {Request, Response} from "express";
 import { Cron } from '@nestjs/schedule';
 import { PoulesModule } from '../poules/poules.module';
+import { MongoExceptionFilter } from '../mongo-exception.filter';
 
 const adminrole :string = "Admin";
 const entrenadorrole: string = "Entrenador";

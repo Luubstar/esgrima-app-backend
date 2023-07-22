@@ -14,6 +14,8 @@ import { Types } from 'mongoose';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
 import { changeEstadoDto } from './dto/change-estado.dto';
+import { EstadisticasModule } from '../estadisticas/estadisticas.module';
+import { EstadisticasService } from '../estadisticas/estadisticas.service';
 
 const httpMocks = require('node-mocks-http');
 
@@ -21,19 +23,20 @@ describe('PoulesService', () => {
   jest.setTimeout(20000)
   let service: PoulesService;
   let uSer: UsuarioService;
-
+  let estadistica: EstadisticasService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         MongooseModule.forRoot("mongodb+srv://Admin:LuubStar1@mainserver.r4fjvrb.mongodb.net/Tests"),
         MongooseModule.forFeature([{ name: Poule.name, schema: PouleSchema }]), 
-        UsuarioModule],
+        UsuarioModule,EstadisticasModule],
       controllers: [PoulesController],
       providers: [PoulesService, PoulesController],
       exports: [PoulesService]
     }).compile();
     service = module.get<PoulesService>(PoulesService);
     uSer = module.get<UsuarioService>(UsuarioService);
+    estadistica = module.get<EstadisticasService>(EstadisticasService);
   });
 
   it('should be defined', () => {
@@ -45,27 +48,27 @@ describe('PoulesService', () => {
 
   let Adoc = new CreatePouleDto()
   Adoc["Nombre"] = "A";
-  Adoc["Valores"] = [1,2,1,2,1,2];
-  Adoc["Tiradores"] = ["","",""]
+  Adoc["Valores"] = [5,5,3,3,1,1];
+  Adoc["Tiradores"] = ["A","B","C"]
   let Bdoc = new CreatePouleDto()
   Bdoc["Nombre"] = "B";
-  Bdoc["Valores"] = [1,2,1,2,1,2];
+  Bdoc["Valores"] = [5,5,3,3,1,1];
 
   let Cdoc = new CreatePouleDto();
   Cdoc["Nombre"] = "C";
-  Cdoc["Valores"] = [1,2,1,2,1,2];
+  Cdoc["Valores"] = [5,5,3,3,1,1];
 
   let wD = new changePouleVencedores();
   wD["Vencedores"] = ["A"];
 
   let vD = new changeValoresDto();
-  vD["Valores"] = [2,1];
+  vD["Valores"] = [4,4,3,3,1,1];
 
   describe("Funciones", () => {
     beforeAll(async () => {
       service.getModel().deleteMany({});
       uSer.getModel().deleteMany({});
-
+      estadistica.getModel().deleteMany({});
       createPoule = (await service.create(Adoc));
     });
   
@@ -75,6 +78,7 @@ describe('PoulesService', () => {
       expect((await service.findAll(req)).length).toBe(0);
       service.getModel().deleteMany({});
       uSer.getModel().deleteMany({});
+      estadistica.getModel().deleteMany({});
     });
 
     it ("should create", () => {
@@ -94,7 +98,7 @@ describe('PoulesService', () => {
       expect((await service.getValores(createPoule["_id"] ))["Valores"].length).toBe(createPoule["Valores"].length);
     });
 
-    it("should set state (NOT IMPLEMENTED)", async() => {
+    it("should set state", async() => {
       let res = httpMocks.createResponse();
       let estado = new changeEstadoDto();
       estado["Estado"] = 1;
@@ -106,6 +110,8 @@ describe('PoulesService', () => {
       service.setEstado(createPoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
+      let req = httpMocks.createRequest()
+      expect((await estadistica.findAll(req)).length).toBe(3);
 
 
       let testpoule = (await service.create(Bdoc));

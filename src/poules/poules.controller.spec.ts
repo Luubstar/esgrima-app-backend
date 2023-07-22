@@ -11,6 +11,7 @@ import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { changeEstadoDto } from './dto/change-estado.dto';
 import { changeValoresDto } from './dto/change-valores.dto';
+import { EstadisticasModule } from '../estadisticas/estadisticas.module';
 const httpMocks = require('node-mocks-http');
 
 describe('PoulesController', () => {
@@ -23,7 +24,7 @@ describe('PoulesController', () => {
       imports: [
         MongooseModule.forRoot("mongodb+srv://Admin:LuubStar1@mainserver.r4fjvrb.mongodb.net/Tests"),
         MongooseModule.forFeature([{ name: Poule.name, schema: PouleSchema }]), 
-        UsuarioModule],
+        UsuarioModule,EstadisticasModule],
       controllers: [PoulesController],
       providers: [PoulesService, PoulesController],
       exports: [PoulesService]
