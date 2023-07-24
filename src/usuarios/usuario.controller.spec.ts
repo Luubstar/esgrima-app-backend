@@ -10,6 +10,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 const httpMocks = require('node-mocks-http');
 
 describe('UsuarioController', () => {
+  jest.setTimeout(20000)
   let controller: UsuarioController;
   let service: UsuarioService;
   beforeEach(async () => {

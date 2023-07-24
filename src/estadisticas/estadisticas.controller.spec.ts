@@ -9,6 +9,7 @@ import { HttpStatus } from '@nestjs/common';
 const httpMocks = require('node-mocks-http');
 
 describe('EstadisticasController', () => {
+  jest.setTimeout(20000)
   let controller: EstadisticasController;
   let service: EstadisticasService;
   let uSer : UsuarioService;

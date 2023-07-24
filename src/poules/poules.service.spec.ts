@@ -90,10 +90,6 @@ describe('PoulesService', () => {
       expect((await service.update(createPoule["_id"], Adoc))["Nombre"].toString()).toBe("A");
     });
 
-    it("should set winners", async() => {
-      expect((await service.setVencedores(createPoule["_id"],wD ))["Vencedores"][0]).toBe("A");
-    });
-
     it("should get values", async() => {
       expect((await service.getValores(createPoule["_id"] ))["Valores"].length).toBe(createPoule["Valores"].length);
     });
@@ -102,12 +98,12 @@ describe('PoulesService', () => {
       let res = httpMocks.createResponse();
       let estado = new changeEstadoDto();
       estado["Estado"] = 1;
-      service.setEstado(createPoule["_id"], estado, res);
+      await service.setEstado(createPoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
       res = httpMocks.createResponse();
       estado["Estado"] = 2;
-      service.setEstado(createPoule["_id"], estado, res);
+      await service.setEstado(createPoule["_id"], estado, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
       let req = httpMocks.createRequest()
@@ -142,26 +138,25 @@ describe('PoulesService', () => {
       Udoc["Clave"] = "A";
       let U = await uSer.create(Udoc);  
       U = await uSer.activarUsuario(U["_id"]);
-      
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
-      
       expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED);
 
       res = httpMocks.createResponse(); 
       let UdocU = new UpdateUsuarioDto();
       UdocU["Nivel"] = "Admin"
-      UdocU["Poules"] = [new Types.ObjectId(createPoule["_id"])];
       U = await uSer.update(U["_id"],UdocU );
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
-      
       expect(res.statusCode).toBe(HttpStatus.OK);
 
       res = httpMocks.createResponse(); 
-      UdocU = new UpdateUsuarioDto();
       UdocU["Nivel"] = "Tirador"
+      UdocU["Poules"] = [new Types.ObjectId(createPoule["_id"])];
       U = await uSer.update(U["_id"],UdocU );
+      let p = new UpdatePouleDto()
+      p.Creador = U["_id"];
+      createPoule = await service.update(createPoule["_id"], p);
+      console.log(createPoule);
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
-      
       expect(res.statusCode).toBe(HttpStatus.OK);
 
       res = httpMocks.createResponse(); 

@@ -78,7 +78,7 @@ export class UsuarioService {
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
@@ -86,12 +86,13 @@ export class UsuarioService {
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec(); 
     return usuario;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec();
+    //["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 

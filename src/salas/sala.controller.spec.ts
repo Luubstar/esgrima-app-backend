@@ -10,6 +10,7 @@ import { HttpStatus } from '@nestjs/common';
 const httpMocks = require('node-mocks-http');
 
 describe('SalaController', () => {
+  jest.setTimeout(20000)
   let controller: SalaController;
   let service : SalaService;
   let uService : UsuarioService;

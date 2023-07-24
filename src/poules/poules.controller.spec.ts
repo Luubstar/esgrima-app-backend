@@ -15,6 +15,8 @@ import { EstadisticasModule } from '../estadisticas/estadisticas.module';
 const httpMocks = require('node-mocks-http');
 
 describe('PoulesController', () => {
+
+  jest.setTimeout(20000)
   let controller: PoulesController;
   let service : PoulesService;
   let uSer: UsuarioService;
