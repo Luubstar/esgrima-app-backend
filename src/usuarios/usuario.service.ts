@@ -65,38 +65,62 @@ export class UsuarioService {
     }
     else{return null;}
   }
-
+  @UseFilters(MongoExceptionFilter)
   async create(createBookDto: CreateUsuarioDto): Promise<Usuario> {
     return this.usuarioModel.create(createBookDto); 
   }
 
   async findAll() : Promise<Usuario[]>{ 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules").select("-Correo -Clave").exec();
+    let u = await  this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).exec();
+    u.forEach(element => {
+      element["Correo"] = "";
+      element["Clave"] = "";
+    });
+    return u;
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).select("-Correo -Clave").exec();
+    let u = await this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
+    u.forEach(element => {
+      element["Correo"] = "";
+      element["Clave"] = "";
+    });
+    return u;
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec();
+    let u = await this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
+    u.forEach(element => {
+      element["Correo"] = "";
+      element["Clave"] = "";
+    });
+    return u;
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
+    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec(); 
   } 
 
   async findHiddenByMail(id: string): Promise<Usuario> { 
     let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec(); 
+    usuario["Correo"] = "";
+    usuario["Clave"] = "";
     return usuario;
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec(); 
-    return usuario;
+    let u = await this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec(); 
+    u["Correo"] = "";
+    u["Clave"] = "";
+    return u;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec();
+    let u = await this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
+    u.forEach(element => {
+      element["Correo"] = "";
+      element["Clave"] = "";
+    });
+    return u;
   }
   
 

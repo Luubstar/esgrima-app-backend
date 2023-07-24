@@ -51,7 +51,7 @@ export class PoulesController {
   @ApiOkResponse({description:"La poule (si la encuentra)", type:Poule})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
-  async findOne(@Param('id') id: string, @Req() res: Response) {
+  async findOne(@Param('id') id: string, @Res() res: Response) {
     return res.status(HttpStatus.OK).send(await this.pouleService.findOne(id));
   }
 

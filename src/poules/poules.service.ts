@@ -1,4 +1,4 @@
-import { Injectable, Inject, Res, HttpStatus, HttpException } from '@nestjs/common';
+import { Injectable, Inject, Res, HttpStatus, HttpException, UseFilters } from '@nestjs/common';
 import { CreatePouleDto } from './dto/create-poule.dto';
 import { UpdatePouleDto } from './dto/update-poule.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,6 +11,7 @@ import { changePouleVencedores } from './dto/change-vencedores.dto';
 import { changeValoresDto } from './dto/change-valores.dto';
 import { EstadisticasService } from '../estadisticas/estadisticas.service';
 import { CreateEstadisticaDto } from '../estadisticas/dto/create-estadistica.dto';
+import { MongoExceptionFilter } from '../mongo-exception.filter';
 
 @Injectable()
 export class PoulesService {
@@ -26,14 +27,17 @@ export class PoulesService {
 
   getModel(){return this.usuarioModel;}
 
+  @UseFilters(MongoExceptionFilter)
   async create(createBookDto: CreatePouleDto): Promise<Poule> { 
     return this.usuarioModel.create(createBookDto); 
   }
 
+  @UseFilters(MongoExceptionFilter)
   async findAll(request: Request): Promise<Poule[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
+  @UseFilters(MongoExceptionFilter)
   async findOne(id: string): Promise<Poule> { 
     return this.usuarioModel.findOne({ _id: id }).setOptions({sanitizeFilter : true}).exec(); 
   }
