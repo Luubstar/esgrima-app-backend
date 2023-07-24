@@ -71,27 +71,27 @@ export class UsuarioService {
   }
 
   async findAll() : Promise<Usuario[]>{ 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules", "Poules");
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules");
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
     return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).exec(); 
+    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
   } 
 
   async findByMail(id: string): Promise<Usuario> { 
-    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).exec(); 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
     return usuario;
   } 
 
   async findBySala(sala:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate("Poules").exec();
   }
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
