@@ -82,10 +82,6 @@ export class UsuarioService {
   }
 
   async findById(id: string): Promise<Usuario> { 
-    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").select("-Correo -Clave").exec(); 
-  } 
-
-  async findHidden(id: string): Promise<Usuario> { 
     return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
   } 
 
