@@ -24,7 +24,7 @@ export class UsuarioService {
     if (await this.checkIfExists(correo,clave)){
       if (await this.checkIfAuth(correo,clave))
       {  
-        let usuario = await this.findByMail(correo);
+        let usuario = await this.findHiddenByMail(correo);
         return usuario["_id"].toString();
       } 
       else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}
@@ -34,14 +34,14 @@ export class UsuarioService {
 
   async checkIfAuth(correo : string, clave : string){
     try{
-    let usuario = await this.findByMail(correo);
+    let usuario = await this.findHiddenByMail(correo);
     return usuario["Clave"] == clave && usuario["Activado"];}
     catch{return false;}
   }
 
   async checkIfExists(correo : string, clave : string){
     try{
-    let usuario = await this.findByMail(correo);
+    let usuario = await this.findHiddenByMail(correo);
     return usuario["Clave"] == clave;}
     catch{return false;}
   }
@@ -52,7 +52,7 @@ export class UsuarioService {
 
   async findActivado(correo:string, clave:string) {
     if (await this.checkIfAuth(correo, clave)){
-      let usuario = await this.findByMail(correo);
+      let usuario = await this.findHiddenByMail(correo);
       return usuario["Activado"];
     }
     else{return false;}
@@ -60,7 +60,7 @@ export class UsuarioService {
 
   async findNivel(correo:string, clave:string) {
     if (await this.checkIfAuth(correo, clave)){
-      let usuario = await this.findByMail(correo);
+      let usuario = await this.findHiddenByMail(correo);
       return usuario["Nivel"];
     }
     else{return null;}
@@ -71,29 +71,38 @@ export class UsuarioService {
   }
 
   async findAll() : Promise<Usuario[]>{ 
-    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules");
+    return this.usuarioModel.find({Activado: true}).setOptions({sanitizeFilter : true}).populate("Poules").select("-Correo -Clave").exec();
   }
   async findAllbtn(request: Request): Promise<Usuario[]> { 
-    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).exec();
+    return this.usuarioModel.find(request.query).setOptions({sanitizeFilter : true}).select("-Correo -Clave").exec();
   }
 
   async findByName(nombre:string): Promise<Usuario[]> { 
-    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
+    return this.usuarioModel.find({Nombre: new RegExp(nombre, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec();
   }
 
   async findById(id: string): Promise<Usuario> { 
+    return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").select("-Correo -Clave").exec(); 
+  } 
+
+  async findHidden(id: string): Promise<Usuario> { 
     return this.usuarioModel.findById(id).setOptions({sanitizeFilter : true}).populate("Poules").exec(); 
   } 
 
-  async findByMail(id: string): Promise<Usuario> { 
+  async findHiddenByMail(id: string): Promise<Usuario> { 
     let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec(); 
     return usuario;
   } 
 
+  async findByMail(id: string): Promise<Usuario> { 
+    let usuario = this.usuarioModel.findOne({ Correo: new RegExp(id, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec(); 
+    return usuario;
+  } 
+
   async findBySala(sala:string): Promise<Usuario[]> { 
-    //["_id", "Nombre", "Tipo", "Estado","Creador", "Tiradores", "Vencedores"]
-    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).exec();
+    return this.usuarioModel.find({Sala: new RegExp(sala, "i")}).setOptions({sanitizeFilter : true}).populate({path:"Poules", select:"_id Nombre Tipo Estado Creador Tiradores Vencedores"}).select("-Correo -Clave").exec();
   }
+  
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
     return this.usuarioModel.findOneAndUpdate({ _id: id }, updateBookDto, { 
