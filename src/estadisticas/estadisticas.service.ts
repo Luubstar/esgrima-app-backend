@@ -22,17 +22,15 @@ export class EstadisticasService {
         createEstadisticaDto["Usuario"] = Usuario.toString();
         createEstadisticaDto["Mes"] = date.getMonth();
         createEstadisticaDto["Año"] = date.getFullYear();
-        res.status(HttpStatus.ACCEPTED).send();
         return this.estadisticaModel.create(createEstadisticaDto)
       }
       else{
-        res.status(HttpStatus.CONFLICT).send("Ya existen estadísticas con ese mes y año para el usuario");
+        res.status(HttpStatus.CONFLICT)
         await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
       } 
     }
     else {
-      res.status(HttpStatus.CONFLICT).send("Usuario no indicado");
-      await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
+      res.status(HttpStatus.CONFLICT)
     }
   }
 

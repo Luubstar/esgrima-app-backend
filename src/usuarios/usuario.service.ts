@@ -24,7 +24,7 @@ export class UsuarioService {
     if (await this.checkIfExists(correo,clave)){
       if (await this.checkIfAuth(correo,clave))
       {  
-        let usuario = await this.findHiddenByMail(correo);
+        let usuario = await this.findByMail(correo);
         return usuario["_id"].toString();
       } 
       else{return res.status(HttpStatus.UNAUTHORIZED).send("Cuenta no autorizada. Autorizala en tu correo electrónico");}

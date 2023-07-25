@@ -55,8 +55,8 @@ export class PoulesService {
 
   async setEstado(idpoule: string, estado: changeEstadoDto,@Res() res:Response) : Promise<Poule>{ 
     if (estado["Estado"] == 1){
-      res.status(HttpStatus.OK).send(this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
-      this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});}
+      res.status(HttpStatus.OK).send(await this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true}));
+    }
     else if (estado["Estado"] <= 0){
       let poule = await this.findOne(idpoule);
       let Tiradores = poule["Tiradores"]
@@ -151,9 +151,10 @@ export class PoulesService {
 
   async setValores(idpoule: string, correo: string, clave:string, estado: changeValoresDto,@Res() res:Response) { 
     let poule = await this.findOne(idpoule);
+    res.status(HttpStatus.OK);
     let idUsuario = await this.usuario.GetIfLoged(correo,clave,res);
     let u = await (this.usuario.findById(idUsuario));
-    if(res.statusCode == HttpStatus.OK && (await this.usuario.checkIfAdmin(correo, clave) ||u.Poules.includes(new Types.ObjectId(idpoule)))){
+    if(res.statusCode == HttpStatus.OK && (await this.usuario.checkIfAdmin(correo, clave) || await this.CheckIfInPoule(u.Poules, idpoule) )){
       if(await this.usuario.checkIfAdmin(correo, clave) ||  idUsuario == poule["Creador"]){
         await this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
         return res.status(HttpStatus.OK).send("Datos actualizados como administrador");
@@ -180,6 +181,14 @@ export class PoulesService {
   async getValores(idpoule: string): Promise<Poule> { 
     let poule = this.usuarioModel.findOne({ _id: idpoule }).setOptions({sanitizeFilter : true}).exec();
     return poule;
+  }
+
+  async CheckIfInPoule(Poules : Poule[], idC : string){
+    let res = false;
+    Poules.forEach(element => {
+      if(element["_id"] == idC){res = true;}
+    });
+    return res;
   }
 
   async dif (oldVal:number[], newVal:number[],@Res() res:Response) : Promise<number[]>{

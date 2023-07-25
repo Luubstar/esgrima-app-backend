@@ -51,8 +51,8 @@ export class PoulesController {
   @ApiOkResponse({description:"La poule (si la encuentra)", type:Poule})
   @Get('id/:id')
   @UseFilters(MongoExceptionFilter)
-  async findOne(@Param('id') id: string, @Res() res: Response) {
-    return res.status(HttpStatus.OK).send(await this.pouleService.findOne(id));
+  async findOne(@Param('id') id: string) {
+    return await this.pouleService.findOne(id);
   }
 
   
@@ -75,12 +75,17 @@ export class PoulesController {
   @Post("estado/:correo/:clave/:pouleid")
   @ApiUnauthorizedResponse({description:"Si el usuario introducido está activado y existe", type:String})
   @UseFilters(MongoExceptionFilter)
-  async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string, idU:string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
-    let poule = await this.findOne(idpoule,res);
-    if ((await this.usuario.checkIfAuth(correo, clave) && poule["Tiradores"].includes(idU)) || await this.usuario.checkIfAdmin(correo,clave)){
-      return res.status(HttpStatus.OK).send(await this.pouleService.setEstado(idpoule, changeEstadoDTO, res));
+  async changePouleEstado(@Param("correo") correo:string,@Param("clave") clave:string,@Param('pouleid') idpoule: string,@Body() changeEstadoDTO: changeEstadoDto, @Res() res: Response) {
+    let poule = await this.findOne(idpoule);
+    if (poule["_id"].toString().length > 0){
+      let idU = await this.usuario.GetIfLoged(correo, clave, res);
+      if ((await this.usuario.checkIfAuth(correo, clave) && poule["Creador"].toString() == idU) || await this.usuario.checkIfAdmin(correo,clave)){
+        res.status(HttpStatus.OK);
+        let r = await this.pouleService.setEstado(idpoule, changeEstadoDTO, res);
+        return r;
+      }
+      return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
     }
-    return res.status(HttpStatus.UNAUTHORIZED).send("No tienes autorización");
   }
 
   @ApiOperation({summary : "Cambia los valores de una poule"})
