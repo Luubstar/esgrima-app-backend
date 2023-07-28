@@ -72,13 +72,13 @@ describe('PoulesController', () => {
     jest.spyOn(service,'findOne').mockResolvedValue(new Poule()); 
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false);
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(false); 
-    await controller.changePouleEstado("aaaa", "a", "d", "", new changeEstadoDto(), res);
+    await controller.changePouleEstado("aaaa", "a", "d", new changeEstadoDto(), res);
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
     
     res = httpMocks.createResponse();
     jest.spyOn(service,'setEstado').mockResolvedValue(new Poule()); 
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(true); 
-    await controller.changePouleEstado("", "a", "d", "", new changeEstadoDto(), res);
+    await controller.changePouleEstado("", "a", "d", new changeEstadoDto(), res);
     expect(res.statusCode).toBe(HttpStatus.OK)
   })
 
@@ -127,7 +127,7 @@ describe('PoulesController', () => {
       let res = httpMocks.createResponse();
       jest.spyOn(service,'findOne').mockResolvedValue(new Poule()); 
 
-      await controller.findOne("", res);
+      await controller.findOne("");
       expect(res.statusCode).toBe(HttpStatus.OK);
     })
   })
