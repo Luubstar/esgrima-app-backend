@@ -108,28 +108,6 @@ export class PoulesService {
             else if(valores2D[Usuario][desp] <= valores2D[desp][Usuario]){derrotas[Usuario]++;}
           }}}
       
-      let lowest = 3 < victorias.length ? 3 : victorias.length;
-      let ganadores = []
-      for(let i = 0; i < lowest; i++ ){
-        let high = 0;
-        let index = 0;
-
-        for(let valor; valor < victorias.length; valor++){
-          if( high < victorias[valor]){high = victorias[valor]; index = valor;}
-          else if (high == victorias[valor]){
-            if(derrotas[valor] < derrotas[index]){index = valor;}
-            else{if(tocadosD[valor]/tocadosR[valor] > tocadosD[index]/tocadosR[index]){index = valor;}}
-          }
-        }
-        victorias[index] = 0;
-        derrotas[index] = 0;
-        ganadores[i] = Tiradores[index];
-      }
-
-      let vencedores = new changePouleVencedores();
-      vencedores.Vencedores = ganadores;
-      this.setVencedores(idpoule, vencedores);
-      
       for(let t = 0; t < Tiradores.length; t++){
         let dto = new CreateEstadisticaDto();
         dto.Victorias = victorias[t];
@@ -138,7 +116,25 @@ export class PoulesService {
         dto.TocadosRecibidos = tocadosR[t];
         await this.estadistica.create(dto, Tiradores[t], res);
       }
-      
+
+      let lowest = 3 < victorias.length ? 3 : victorias.length;
+      let ganadores = Tiradores.sort((a,b) => {
+        if(victorias[a] != victorias[b]){
+          return victorias[a] - victorias[b];
+        }
+        else if (derrotas[a] != derrotas[b]){
+          return victorias[a] - victorias[b] + derrotas[b] - derrotas[a];
+        }
+        else{
+          return victorias[a] - victorias[b] + derrotas[b] - derrotas[a] + tocadosD[a] - tocadosD[b] - (tocadosR[b] - tocadosR[a] );
+        }
+      });
+      console.log(ganadores);
+
+      let vencedores = new changePouleVencedores();
+      vencedores.Vencedores = ganadores.slice(0, lowest);
+      this.setVencedores(idpoule, vencedores);
+
       res.status(HttpStatus.OK).send("Poule actualizada");
       return this.usuarioModel.findOneAndUpdate({_id: idpoule}, estado,{new:true});
     }

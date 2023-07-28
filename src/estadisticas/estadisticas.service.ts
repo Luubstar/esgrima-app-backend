@@ -57,6 +57,6 @@ export class EstadisticasService {
   }
 
   async getFromUser(u:string, m:number, a:number) : Promise<Estadisticas>{ 
-    return  this.estadisticaModel.findOne({ u,  m, a}).setOptions({sanitizeFilter : true});
+    return  this.estadisticaModel.findOne({ Usuario:u, Mes:m, Año:a}).setOptions({sanitizeFilter : true});
   }
 }
