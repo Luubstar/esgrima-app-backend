@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateSalaDto {
   @ApiProperty({ 
-    example: "SAJI",
+    example: "SAJI",default: ""
   })
-  readonly Nombre: string; 
+  Nombre: string; 
 
   @ApiProperty({ 
-    example: "Espada",
+    example: "Espada", default: ""
   })
   readonly Armas: string; 
 }

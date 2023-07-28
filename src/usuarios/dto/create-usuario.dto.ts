@@ -3,19 +3,21 @@ export class CreateUsuarioDto {
   @ApiProperty({ 
     example: "Nicolas Barona Riera",
   })
-  readonly Nombre: string;
+  Nombre: string;
   
   @ApiProperty({ example: 'ejemplo@gmail.com' })
-  readonly Correo: string;
+  Correo: string;
 
   @ApiProperty({ example: "<password>" })
-  readonly Clave: string;
+  Clave: string;
 
   @ApiProperty({ example: "" })
-  readonly Imagen64: string;
+  Imagen64: string;
 
   @ApiProperty({ default: "SAJI" })
-  readonly Sala: string;
+  Sala: string;
 
-
+  @ApiProperty({ default: "Tirador" })
+  Nivel: string;
+  
 }

@@ -3,16 +3,16 @@ export class CreatePouleDto {
   @ApiProperty({ 
     example: "Poule viernes",
   })
-  readonly Nombre: string; 
+  Nombre: string; 
 
   @ApiProperty({ example: '' })
-  readonly Creador: string;
+  Creador: string;
 
   @ApiProperty({ example: [""] })
-  readonly Tiradores: string[];
+  Tiradores: string[];
 
   @ApiProperty()
-  readonly Valores: number[];
+  Valores: number[];
 
   @ApiProperty({default: 1})
   readonly Estado: number

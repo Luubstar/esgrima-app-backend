@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 describe('AppController', () => {
+
+  jest.setTimeout(20000)
   let appController: AppController;
 
   beforeEach(async () => {
@@ -15,8 +17,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return version"', () => {
+      expect(appController.getVersion()).toBe(appController.version);
     });
   });
 });

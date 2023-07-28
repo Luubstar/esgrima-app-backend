@@ -1,7 +1,7 @@
 
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose'; 
-import { Poule } from 'src/poules/schemas/poule.schema';
+import { Poule } from '../../poules/schemas/poule.schema';
 
 export type UsuarioDocument = Usuario & Document; 
 @Schema() 
@@ -28,8 +28,8 @@ export class Usuario {
   @Prop({default:Date.now})
   Creado: Date;
 
-  @Prop({type:[{type:Types.ObjectId, ref:Poule.name}]}) 
-  Poules: Poule[];
+  @Prop({type:[{type:Types.ObjectId, ref:Poule.name}],default:[] }) 
+  Poules: [{type:Types.ObjectId, ref:"Poules"}]
 
   @Prop({default: ""})
   Imagen64: string;

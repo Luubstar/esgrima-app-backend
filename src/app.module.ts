@@ -7,6 +7,7 @@ import { PoulesModule } from './poules/poules.module';
 import { SalaModule } from './salas/sala.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EstadisticasModule } from './estadisticas/estadisticas.module';
 
 @Module({
   imports: [
@@ -14,9 +15,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     UsuarioModule, PoulesModule, SalaModule,ThrottlerModule.forRoot({
       ttl: 10,
       limit: 20,
-    }), ScheduleModule.forRoot()
+    }), ScheduleModule.forRoot(), EstadisticasModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {} 
