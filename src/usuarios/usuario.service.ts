@@ -122,7 +122,6 @@ export class UsuarioService {
     });
     return u;
   }
-  
 
   async update(id: string, updateBookDto: UpdateUsuarioDto): Promise<Usuario> { 
     return this.usuarioModel.findOneAndUpdate({ _id: id }, updateBookDto, { 

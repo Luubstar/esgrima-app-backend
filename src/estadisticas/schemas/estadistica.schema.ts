@@ -29,5 +29,12 @@ export class Estadisticas {
   @Prop({default : 0})
   PoulesTotales : number
 
+  async sum(adder:Estadisticas) {
+    this.Victorias += adder.Victorias;
+    this.Derrotas += adder.Derrotas;
+    this.TocadosDados += adder.TocadosDados;
+    this.TocadosRecibidos += adder.TocadosRecibidos;
+  }
+
 } 
 export const EstadisticaSchema = SchemaFactory.createForClass(Estadisticas).index({Usuario:1});

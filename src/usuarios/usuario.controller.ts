@@ -143,7 +143,7 @@ export class UsuarioController {
   @ApiOkResponse({description:"Los usuarios pertenecientes a la sala",isArray:true, type:Usuario})
   @Get("sala/:sala")
   @UseFilters(MongoExceptionFilter)
-  async findOneBySala(@Param("sala") id:string,@Res() res:Response) {
+  async findBySala(@Param("sala") id:string,@Res() res:Response) {
     return res.status(HttpStatus.OK).send(await this.usuarioService.findBySala(id));
   }
 
