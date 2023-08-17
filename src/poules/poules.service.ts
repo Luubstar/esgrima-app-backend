@@ -159,7 +159,9 @@ export class PoulesService {
         let newVal = estado["Valores"];
         let oldVal = poule["Valores"];
         let dif = await this.dif(oldVal, newVal, res);
-
+        console.log(dif)
+        if (dif = null){return null;}
+        
         let pos = -1
         let step = poule["Tiradores"].length;
         for(let i = 0; i < dif.length; i++){
@@ -189,11 +191,11 @@ export class PoulesService {
 
   async dif (oldVal:number[], newVal:number[],@Res() res:Response) : Promise<number[]>{
     try{
-    let difVal = [];
-    if (oldVal.length != newVal.length){ throw new HttpException("Error con los tamaños", HttpStatus.BAD_REQUEST);}
-    for(let i = 0; i < oldVal.length; i++){difVal[i] = (oldVal[i] - newVal[i]);}
-    res.status(HttpStatus.OK).send();
-    return difVal}
+      let difVal = [];
+      if (oldVal.length != newVal.length){ throw new HttpException("Error con los tamaños", HttpStatus.BAD_REQUEST);}
+      for(let i = 0; i < oldVal.length; i++){difVal[i] = (oldVal[i] - newVal[i]);}
+      res.status(HttpStatus.OK).send();
+      return difVal}
     catch{
       res.status(HttpStatus.BAD_REQUEST).send("Error con el tamaño de las listas");
       return null;

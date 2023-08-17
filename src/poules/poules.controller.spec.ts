@@ -3,7 +3,6 @@ import { PoulesController } from './poules.controller';
 import { PoulesService } from './poules.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Poule, PouleSchema } from './schemas/poule.schema';
-import { PoulesModule } from './poules.module';
 import { UsuarioModule } from '../usuarios/usuario.module';
 import { HttpStatus } from '@nestjs/common';
 import { UsuarioService } from '../usuarios/usuario.service';
@@ -68,17 +67,19 @@ describe('PoulesController', () => {
   })
 
   it ("should change state", async () => {
+
+    let p = await service.create(new CreatePouleDto());
+
     let res = httpMocks.createResponse();
-    jest.spyOn(service,'findOne').mockResolvedValue(new Poule()); 
     jest.spyOn(uSer,'checkIfAuth').mockResolvedValue(false);
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(false); 
-    await controller.changePouleEstado("aaaa", "a", "d", new changeEstadoDto(), res);
+    await controller.changePouleEstado("aaaa", "a", p["_id"], new changeEstadoDto(), res);
     expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED)
     
     res = httpMocks.createResponse();
     jest.spyOn(service,'setEstado').mockResolvedValue(new Poule()); 
     jest.spyOn(uSer,'checkIfAdmin').mockResolvedValue(true); 
-    await controller.changePouleEstado("", "a", "d", new changeEstadoDto(), res);
+    await controller.changePouleEstado("", "",p["_id"], new changeEstadoDto(), res);
     expect(res.statusCode).toBe(HttpStatus.OK)
   })
 

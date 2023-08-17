@@ -39,6 +39,10 @@ describe('EstadisticasService', () => {
   let Bdoc = new CreateEstadisticaDto()
   Bdoc["Usuario"] = "B";
 
+  let tdoc = new CreateEstadisticaDto()
+  tdoc["Usuario"] = "Z";
+  let tdoc2 = new CreateEstadisticaDto()
+  tdoc2["Usuario"] = "Z2";
   describe("Funciones", () => {
 
     beforeAll(async () => {
@@ -63,11 +67,11 @@ describe('EstadisticasService', () => {
       expect(res.statusCode).toBe(HttpStatus.CONFLICT);
 
       res = httpMocks.createResponse();
-      let est = await service.create(new CreateEstadisticaDto(), "Z", res);
+      let est = await service.create(tdoc, "Z", res);
       expect(est["Usuario"]).toBe("Z");
 
       res = httpMocks.createResponse();
-      await service.create(new CreateEstadisticaDto(), "Z", res);
+      await service.create(tdoc, "Z", res);
       expect(res.statusCode).toBe(HttpStatus.CONFLICT);
       await service.remove(est["_id"]);
     });
@@ -87,9 +91,15 @@ describe('EstadisticasService', () => {
       });
 
       it("should find by user, month and year", async() => {
-        expect((await service.getFromUser(createdEst["Usuario"], createdEst["Month"], createdEst["Year"]))["_id"].toString()).toBe(createdEst["_id"].toString());
+        let res = httpMocks.createResponse();
+        let est = await service.create(tdoc2, "Z2", res);
+
+        let u = await service.getFromUser(est["Usuario"], est["Mes"], est["Año"]);
+        expect(u["_id"].toString()).toBe(est["_id"].toString());
+        service.remove(est["_id"]);
       });
   
     });
+    
   });
 });

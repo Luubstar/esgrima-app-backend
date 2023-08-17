@@ -14,7 +14,8 @@ export class EstadisticasService {
   ) {}
   
   public getModel(){return this.estadisticaModel;}
-  async create(createEstadisticaDto: CreateEstadisticaDto, Usuario:string, @Res() res: Response){
+  
+  async create(createEstadisticaDto: CreateEstadisticaDto, Usuario:string, @Res() res: Response): Promise<Estadisticas>{
     let date = new Date();
     if (Usuario.length > 0)
     {
@@ -22,15 +23,17 @@ export class EstadisticasService {
         createEstadisticaDto["Usuario"] = Usuario.toString();
         createEstadisticaDto["Mes"] = date.getMonth();
         createEstadisticaDto["Año"] = date.getFullYear();
+        res.status(HttpStatus.OK);
         return this.estadisticaModel.create(createEstadisticaDto)
       }
       else{
         res.status(HttpStatus.CONFLICT)
-        await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
+        return await this.update(this.getFromUser(Usuario,date.getMonth(),date.getFullYear())["_id"], createEstadisticaDto);
       } 
     }
     else {
       res.status(HttpStatus.CONFLICT)
+      return null;
     }
   }
 
@@ -57,6 +60,6 @@ export class EstadisticasService {
   }
 
   async getFromUser(u:string, m:number, a:number) : Promise<Estadisticas>{ 
-    return  this.estadisticaModel.findOne({ Usuario:u, Mes:m, Año:a}).setOptions({sanitizeFilter : true});
+    return this.estadisticaModel.findOne({ Usuario:u, Mes:m, Año:a}).setOptions({sanitizeFilter : true});
   }
 }

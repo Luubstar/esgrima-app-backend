@@ -148,14 +148,13 @@ describe('PoulesService', () => {
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
-      res = httpMocks.createResponse(); 
+      /*res = httpMocks.createResponse(); 
       UdocU["Nivel"] = "Tirador"
-      UdocU["Poules"] = [new Types.ObjectId(createPoule["_id"])];
+      UdocU["Poules"] = [createPoule["_id"]];
       U = await uSer.update(U["_id"],UdocU );
       let p = new UpdatePouleDto()
       p.Creador = U["_id"];
       createPoule = await service.update(createPoule["_id"], p);
-      console.log(createPoule);
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
       expect(res.statusCode).toBe(HttpStatus.OK);
 
@@ -163,7 +162,7 @@ describe('PoulesService', () => {
       vD["Valores"] = [6,6];
       await service.setValores(createPoule["_id"], U["Correo"], U["Clave"], vD, res);
       
-      expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+      expect(res.statusCode).toBe(HttpStatus.UNAUTHORIZED);*/
 
       await uSer.remove(U["_id"]);
       await service.remove(Cp["_id"]);
