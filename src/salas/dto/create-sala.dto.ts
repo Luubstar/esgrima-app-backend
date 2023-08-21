@@ -5,8 +5,4 @@ export class CreateSalaDto {
   })
   Nombre: string; 
 
-  @ApiProperty({ 
-    example: "Espada", default: ""
-  })
-  readonly Armas: string; 
 }
